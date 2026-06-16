@@ -65,7 +65,7 @@ This project also uses the **Ninestars - Free Bootstrap Theme for Creative Templ
 
 ## 📸 Screenshots
 
-<img src="screenshots/home-1" alt="Home Screenshot" width="auto">
+<img src="screenshots/home-1.png" alt="Home Screenshot" width="auto">
  <h4 align="center"> Home Page Preview </h4>
 <img src="screenshots/profile.png" alt="Profile Screenshot" width="auto">
  <h4 align="center"> Profile Page Preview </h4>
