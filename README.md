@@ -69,11 +69,11 @@ This project also uses the **Ninestars - Free Bootstrap Theme for Creative Templ
  <h4 align="center"> Home Page Preview </h4>
 <img src="screenshot/profile.png" alt="Profile Screenshot" width="auto">
  <h4 align="center"> Profile Page Preview </h4>
-<img src="screenshot/classroom-class.png" alt="Class Screenshot" width="auto">
+<img src="screenshot/class.png" alt="Class Screenshot" width="auto">
  <h4 align="center"> Classroom Class Preview </h4>
- <img src="screenshot/classroom-documents.png" alt="Documents Screenshot" width="auto">
+ <img src="screenshot/documents.png" alt="Documents Screenshot" width="auto">
  <h4 align="center"> Classroom Documents Preview </h4>
- <img src="screenshot/classroom-stream.png" alt="Stream Screenshot" width="auto">
+ <img src="screenshot/stream.png" alt="Stream Screenshot" width="auto">
  <h4 align="center"> Classroom Stream Page Preview </h4>
 
 <p align="center">
