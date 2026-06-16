@@ -65,19 +65,19 @@ This project also uses the **Ninestars - Free Bootstrap Theme for Creative Templ
 
 ## 📸 Screenshots
 
-<img src="screenshots/home-1.png" alt="Home Screenshot" width="auto">
+<img src="screenshot/home-1.png" alt="Home Screenshot" width="auto">
  <h4 align="center"> Home Page Preview </h4>
-<img src="screenshots/profile.png" alt="Profile Screenshot" width="auto">
+<img src="screenshot/profile.png" alt="Profile Screenshot" width="auto">
  <h4 align="center"> Profile Page Preview </h4>
-<img src="screenshots/classroom-class.png" alt="Class Screenshot" width="auto">
+<img src="screenshot/classroom-class.png" alt="Class Screenshot" width="auto">
  <h4 align="center"> Classroom Class Preview </h4>
- <img src="screenshots/classroom-documents.png" alt="Documents Screenshot" width="auto">
+ <img src="screenshot/classroom-documents.png" alt="Documents Screenshot" width="auto">
  <h4 align="center"> Classroom Documents Preview </h4>
- <img src="screenshots/classroom-stream.png" alt="Stream Screenshot" width="auto">
+ <img src="screenshot/classroom-stream.png" alt="Stream Screenshot" width="auto">
  <h4 align="center"> Classroom Stream Page Preview </h4>
 
 <p align="center">
-  <a href="./screenshots" target="_blank">
+  <a href="./screenshot" target="_blank">
     <img src="https://img.shields.io/badge/View%20All%20Screenshots-Click%20Here-blue?style=for-the-badge" />
   </a>
 </p>
