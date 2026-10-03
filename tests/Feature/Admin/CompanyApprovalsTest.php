@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ApprovalStatus;
+use App\Models\Company;
 use App\Models\User;
 use App\Notifications\CompanyApproved;
 use Illuminate\Support\Facades\Notification;
@@ -57,4 +58,18 @@ it('rejects with a reason and validates its length', function () {
 it('is admin-only', function () {
     $this->actingAs(User::factory()->company()->create())->post(route('admin.companies.approve', $this->company))->assertForbidden();
     expect($this->company->refresh()->isApproved())->toBeFalse();
+});
+
+it('returns 404 when approving or rejecting a partner company', function () {
+    $partner = Company::factory()->partner()->create();
+
+    $this->actingAs($this->admin)->post(route('admin.companies.approve', $partner))->assertNotFound();
+    $this->actingAs($this->admin)->post(route('admin.companies.reject', $partner))->assertNotFound();
+});
+
+it('double-submitting reject is harmless', function () {
+    $this->actingAs($this->admin)->post(route('admin.companies.reject', $this->company), ['reason' => 'MOA unsigned']);
+
+    $this->actingAs($this->admin)->post(route('admin.companies.reject', $this->company))
+        ->assertRedirect()->assertSessionHas('info');
 });

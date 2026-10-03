@@ -63,3 +63,18 @@ it('can re-approve a rejected company', function () {
     expect(app(ApproveCompany::class)($this->company->refresh(), $this->admin))->toBeTrue()
         ->and($this->company->refresh()->isApproved())->toBeTrue();
 });
+
+it('is a no-op when rejecting an already rejected company', function () {
+    expect(app(RejectCompany::class)($this->company, $this->admin, 'First'))->toBeTrue();
+    Notification::fake();
+
+    expect(app(RejectCompany::class)($this->company->refresh(), $this->admin, 'Second'))->toBeFalse();
+    Notification::assertNothingSent();
+});
+
+it('rejects without a reason, pointing the company to support and recording the admin', function () {
+    app(RejectCompany::class)($this->company, $this->admin, null);
+
+    expect($this->company->refresh()->approved_by)->toBe($this->admin->id);
+    Notification::assertSentTo($this->companyUser, CompanyRejected::class, fn (CompanyRejected $n) => str_contains($n->toArray($this->companyUser)['body'], config('wiis.support.email')));
+});
