@@ -9,11 +9,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterCompanyController;
 use App\Http\Controllers\Auth\RegisterInternController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\Company;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Intern;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login')->name('home');
@@ -42,6 +44,11 @@ Route::middleware(['auth', 'account.usable'])->group(function () {
     Route::get('account/pending', [AccountStatusController::class, 'pending'])->name('account.pending');
     Route::get('dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::put('password', [ChangePasswordController::class, 'update'])->name('password.update');
+
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('profile/avatar', [AvatarController::class, 'store'])->name('profile.avatar.store');
+    Route::delete('profile/avatar', [AvatarController::class, 'destroy'])->name('profile.avatar.destroy');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
