@@ -48,3 +48,13 @@ it('returns 404 for a non-intern user and 403 for non-admins', function () {
     $this->actingAs($this->admin)->get(route('admin.interns.show', $adviser))->assertNotFound();
     $this->actingAs($adviser)->get(route('admin.interns.index'))->assertForbidden();
 });
+
+it('matches search terms literally instead of as LIKE wildcards', function () {
+    User::factory()->intern()->create(['first_name' => 'Percy']);
+    User::factory()->intern()->create(['first_name' => 'A%B']);
+
+    $this->actingAs($this->admin)->get(route('admin.interns.index', ['q' => '%']))
+        ->assertSee('A%B', false)->assertDontSee('Percy');
+    $this->actingAs($this->admin)->get(route('admin.interns.index', ['q' => '_']))
+        ->assertDontSee('Percy')->assertDontSee('A%B', false);
+});

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ClassSection;
 use App\Models\User;
 use App\Services\OjtHoursService;
+use App\Support\Search;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -23,11 +24,8 @@ class InternController extends Controller
         $interns = User::ofRole(Role::Intern)
             ->with(['internProfile.classSection', 'activePlacement.company'])
             ->when($q !== '', fn (Builder $query) => $query->where(function (Builder $w) use ($q) {
-                $w->where('first_name', 'like', "%{$q}%")
-                    ->orWhere('last_name', 'like', "%{$q}%")
-                    ->orWhere('email', 'like', "%{$q}%")
-                    ->orWhere('member_no', 'like', "%{$q}%")
-                    ->orWhereHas('internProfile', fn (Builder $p) => $p->where('student_number', 'like', "%{$q}%"));
+                Search::any($w, ['first_name', 'last_name', 'email', 'member_no'], $q)
+                    ->orWhereHas('internProfile', fn (Builder $p) => Search::like($p, 'student_number', $q));
             }))
             ->when($request->integer('class'), fn (Builder $query, int $class) => $query->whereHas('internProfile', fn (Builder $p) => $p->where('class_section_id', $class)))
             ->when($status, fn (Builder $query) => $query->where('status', $status))
