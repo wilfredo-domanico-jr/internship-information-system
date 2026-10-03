@@ -14,6 +14,12 @@ Route::redirect('/', '/login')->name('home');
 /* Guests */
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
+    Route::post('login', [LoginController::class, 'store'])->name('login.store');
+});
+
+/* Signed-in users, regardless of account state (a pending company can still log out) */
+Route::middleware('auth')->group(function () {
+    Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
 /* Any signed-in user */
