@@ -116,4 +116,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(ClassSection::class, 'adviser_id');
     }
+
+    public function placements(): HasMany
+    {
+        return $this->hasMany(Placement::class, 'intern_id')->latest('started_at');
+    }
+
+    public function activePlacement(): HasOne
+    {
+        return $this->hasOne(Placement::class, 'intern_id')->whereNull('ended_at');
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'intern_id')->latest();
+    }
 }

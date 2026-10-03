@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
@@ -70,5 +71,20 @@ class Company extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function postings(): HasMany
+    {
+        return $this->hasMany(InternshipPosting::class)->latest();
+    }
+
+    public function placements(): HasMany
+    {
+        return $this->hasMany(Placement::class);
+    }
+
+    public function activePlacements(): HasMany
+    {
+        return $this->hasMany(Placement::class)->whereNull('ended_at');
     }
 }
