@@ -59,6 +59,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('dashboard', Admin\DashboardController::class)->name('dashboard');
+        Route::get('interns', [Admin\InternController::class, 'index'])->name('interns.index');
+        Route::get('interns/{user}', [Admin\InternController::class, 'show'])->name('interns.show');
     });
 
     Route::prefix('adviser')->name('adviser.')->middleware('role:adviser')->group(function () {
