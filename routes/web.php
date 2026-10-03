@@ -65,6 +65,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('advisers/create', [Admin\AdviserController::class, 'create'])->name('advisers.create');
         Route::post('advisers', [Admin\AdviserController::class, 'store'])->name('advisers.store');
         Route::get('advisers/{user}', [Admin\AdviserController::class, 'show'])->name('advisers.show');
+        Route::get('companies', [Admin\CompanyController::class, 'index'])->name('companies.index');
+        // Task 6 inserts companies/pending here, before companies/{company}
+        Route::get('companies/{company}', [Admin\CompanyController::class, 'show'])->name('companies.show');
     });
 
     Route::prefix('adviser')->name('adviser.')->middleware('role:adviser')->group(function () {
