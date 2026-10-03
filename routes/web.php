@@ -11,8 +11,10 @@ use App\Http\Controllers\Auth\RegisterInternController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Company;
 use App\Http\Controllers\DashboardRedirectController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\Intern;
 use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login')->name('home');
 
@@ -45,6 +47,8 @@ Route::middleware(['auth', 'account.usable'])->group(function () {
     Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    Route::get('files/{kind}/{id}', [FileController::class, 'show'])->where('id', '[0-9]+')->name('files.show');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('dashboard', Admin\DashboardController::class)->name('dashboard');
