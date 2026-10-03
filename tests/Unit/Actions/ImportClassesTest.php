@@ -53,3 +53,18 @@ it('rejects bad days, times, school years, unknown advisers and duplicates', fun
         ->and(array_keys($result->errors))->toBe([2, 3, 4, 5, 6, 8])
         ->and(ClassSection::count())->toBe(1);
 });
+
+it('rejects values that are not real clock times', function (string $bad) {
+    $result = app(ImportClasses::class)(collect([classRow(['starts_at' => $bad, 'ends_at' => '23:00'])]));
+
+    expect($result->failed())->toBeTrue()
+        ->and($result->errors[2][0])->toContain('valid times')
+        ->and(ClassSection::count())->toBe(0);
+})->with(['24:00', '0.3333', 'tomorrow', '13:00 PM', '8']);
+
+it('accepts the supported time formats and stores H:i:s', function (string $input, string $stored) {
+    $result = app(ImportClasses::class)(collect([classRow(['starts_at' => $input, 'ends_at' => '23:00'])]));
+
+    expect($result->failed())->toBeFalse()
+        ->and(ClassSection::firstOrFail()->starts_at)->toBe($stored);
+})->with([['08:00', '08:00:00'], ['8:00 AM', '08:00:00'], ['13:00:00', '13:00:00'], ['1:05pm', '13:05:00']]);

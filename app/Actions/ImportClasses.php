@@ -9,8 +9,6 @@ use App\Models\ClassSection;
 use App\Models\User;
 use App\Services\JoinCodeGenerator;
 use App\Support\ImportResult;
-use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -57,13 +55,13 @@ class ImportClasses
 
             $starts = $this->parseTime($row['starts_at'] ?? null);
             $ends = $this->parseTime($row['ends_at'] ?? null);
-            if (! $starts || ! $ends) {
+            if ($starts === null || $ends === null) {
                 $result->addError($rowNo, 'Start and end times must be valid times such as 08:00 or 1:00 PM.');
             } elseif ($ends <= $starts) {
                 $result->addError($rowNo, 'The end time must be after the start time.');
             }
-            $data['starts_at'] = $starts?->format('H:i:s');
-            $data['ends_at'] = $ends?->format('H:i:s');
+            $data['starts_at'] = $starts === null ? null : $this->formatTime($starts);
+            $data['ends_at'] = $ends === null ? null : $this->formatTime($ends);
 
             $memberNo = Str::upper(trim((string) ($row['adviser_member_no'] ?? '')));
             $data['adviser_id'] = null;
@@ -113,16 +111,32 @@ class ImportClasses
         return Str::lower("{$courseCode}|{$section}|{$schoolYear}");
     }
 
-    private function parseTime(mixed $value): ?Carbon
+    /** Accepts H:MM, HH:MM, H:MM:SS, optionally followed by AM/PM. Returns minutes since midnight, or null. */
+    private function parseTime(mixed $value): ?int
     {
-        $value = trim((string) $value);
-        if ($value === '') {
+        $value = strtoupper(trim((string) $value));
+        if (! preg_match('/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/', $value, $m)) {
             return null;
         }
-        try {
-            return Carbon::parse($value);
-        } catch (InvalidFormatException) {
+        [$hour, $minute, $second] = [(int) $m[1], (int) $m[2], (int) ($m[3] ?? 0)];
+        $meridiem = $m[4] ?? null;
+        if ($minute > 59 || $second > 59) {
             return null;
         }
+        if ($meridiem) {
+            if ($hour < 1 || $hour > 12) {
+                return null;
+            }
+            $hour = $hour % 12 + ($meridiem === 'PM' ? 12 : 0);
+        } elseif ($hour > 23) {
+            return null;
+        }
+
+        return $hour * 60 + $minute;
+    }
+
+    private function formatTime(int $minutes): string
+    {
+        return sprintf('%02d:%02d:00', intdiv($minutes, 60), $minutes % 60);
     }
 }

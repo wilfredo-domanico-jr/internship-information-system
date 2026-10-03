@@ -59,3 +59,9 @@ it('flashes an error instead of a 500 for a corrupt spreadsheet', function () {
 
     $response->assertRedirect(route('admin.imports.index'))->assertSessionHas('error');
 });
+
+it('explains a header-only upload', function () {
+    $this->actingAs($this->admin)->post(route('admin.imports.store', 'advisers'), ['file' => uploadRows([ImportColumns::ADVISERS])])
+        ->assertRedirect(route('admin.imports.index'))
+        ->assertSessionHas('error', fn ($m) => str_contains($m, 'No data rows were found'));
+});
