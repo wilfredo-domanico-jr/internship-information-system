@@ -41,3 +41,15 @@ it('renders an empty state with an action slot', function () {
 
     expect($html)->toContain('Nothing here')->toContain('Try later')->toContain('Go');
 });
+
+it('does not re-check a default-checked checkbox after failed validation', function () {
+    $render = fn () => Blade::render('<x-form.checkbox name="agree" label="Agree" :checked="true" />');
+
+    view()->share('errors', new ViewErrorBag);
+    expect($render())->toContain('checked');
+
+    app('session.store')->put('_old_input', ['other' => '1']);
+    request()->setLaravelSession(app('session.store'));
+
+    expect($render())->not->toContain('checked');
+});
