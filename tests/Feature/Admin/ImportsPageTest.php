@@ -21,3 +21,14 @@ it('downloads an xlsx template per type and 404s for unknown types', function (s
 it('rejects unknown template types', function () {
     $this->actingAs($this->admin)->get(route('admin.imports.template', 'payroll'))->assertNotFound();
 });
+
+it('forbids non-admins and redirects guests', function () {
+    $intern = User::factory()->intern()->create();
+
+    $this->actingAs($intern)->get(route('admin.imports.index'))->assertForbidden();
+    $this->actingAs($intern)->get(route('admin.imports.template', 'interns'))->assertForbidden();
+});
+
+it('redirects guests to login', function () {
+    $this->get(route('admin.imports.index'))->assertRedirect(route('login'));
+});

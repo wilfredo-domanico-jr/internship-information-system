@@ -3,6 +3,8 @@
 use App\Services\Excel\SpreadsheetReader;
 use App\Services\Excel\TemplateBuilder;
 use App\Support\ImportColumns;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 it('builds a template whose headers round-trip through the reader', function () {
     $path = (new TemplateBuilder)->build(ImportColumns::INTERNS, ImportColumns::EXAMPLES['interns'], 'Interns');
@@ -13,4 +15,12 @@ it('builds a template whose headers round-trip through the reader', function () 
     expect($rows)->toHaveCount(1)
         ->and(array_keys($rows[0]))->toBe([...ImportColumns::INTERNS, '_row'])
         ->and($rows[0]['email'])->toBe(ImportColumns::EXAMPLES['interns'][3]);
+});
+
+it('formats the data area as text to preserve leading zeros', function () {
+    $path = (new TemplateBuilder)->build(ImportColumns::ADVISERS, ImportColumns::EXAMPLES['advisers'], 'Advisers');
+
+    $format = IOFactory::load($path)->getActiveSheet()->getStyle('A2')->getNumberFormat()->getFormatCode();
+
+    expect($format)->toBe(NumberFormat::FORMAT_TEXT);
 });

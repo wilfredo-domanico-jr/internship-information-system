@@ -17,7 +17,6 @@ class SpreadsheetReader
     public function read(string $path): Collection
     {
         $reader = IOFactory::createReaderForFile($path);
-        $reader->setReadDataOnly(true);
         $sheet = $reader->load($path)->getSheet(0);
 
         $raw = $sheet->toArray(null, true, true, false); // formatted values, 0-indexed

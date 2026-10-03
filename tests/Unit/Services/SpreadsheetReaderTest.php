@@ -8,7 +8,9 @@ function writeSheet(array $rows): string
 {
     $spreadsheet = new Spreadsheet;
     $spreadsheet->getActiveSheet()->fromArray($rows, null, 'A1');
-    $path = tempnam(sys_get_temp_dir(), 'wiis').'.xlsx';
+    $base = tempnam(sys_get_temp_dir(), 'wiis');
+    $path = $base.'.xlsx';
+    rename($base, $path);
     (new Xlsx($spreadsheet))->save($path);
 
     return $path;
@@ -31,4 +33,19 @@ it('normalizes headers, trims values, skips blank rows and numbers rows', functi
 
 it('returns an empty collection for a header-only sheet', function () {
     expect((new SpreadsheetReader)->read(writeSheet([['first_name', 'email']])))->toBeEmpty();
+});
+
+it('returns formatted strings for time and numeric cells', function () {
+    $spreadsheet = new Spreadsheet;
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->fromArray([['a', 'b', 'c'], ['x', 8 / 24, 42]], null, 'A1');
+    $sheet->getStyle('B2')->getNumberFormat()->setFormatCode('h:mm');
+    $base = tempnam(sys_get_temp_dir(), 'wiis');
+    $path = $base.'.xlsx';
+    rename($base, $path);
+    (new Xlsx($spreadsheet))->save($path);
+
+    $row = (new SpreadsheetReader)->read($path)[0];
+
+    expect($row['b'])->toBe('8:00')->and($row['c'])->toBe('42');
 });
