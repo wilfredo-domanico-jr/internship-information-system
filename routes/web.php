@@ -66,7 +66,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::post('advisers', [Admin\AdviserController::class, 'store'])->name('advisers.store');
         Route::get('advisers/{user}', [Admin\AdviserController::class, 'show'])->name('advisers.show');
         Route::get('companies', [Admin\CompanyController::class, 'index'])->name('companies.index');
-        // Task 6 inserts companies/pending here, before companies/{company}
+        Route::get('companies/pending', [Admin\CompanyApprovalController::class, 'index'])->name('companies.pending');
+        Route::post('companies/{company}/approve', [Admin\CompanyApprovalController::class, 'approve'])->name('companies.approve');
+        Route::post('companies/{company}/reject', [Admin\CompanyApprovalController::class, 'reject'])->name('companies.reject');
         Route::get('companies/{company}', [Admin\CompanyController::class, 'show'])->name('companies.show');
     });
 

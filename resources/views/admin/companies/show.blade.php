@@ -2,7 +2,24 @@
     <x-page-header :title="$company->name" :subtitle="($company->type ? $company->type.' · ' : '').'Code '.$company->company_code" :breadcrumbs="['Companies' => route('admin.companies.index'), $company->name => null]">
         <x-slot:actions>
             <x-badge :status="$company->approval_status" />
-            {{-- Task 6 adds Approve / Reject buttons here when the company is pending --}}
+            @if (Route::has('admin.companies.approve') && ! $company->isApproved())
+                <x-confirm-form :action="route('admin.companies.approve', $company)" :confirm="'Approve '.$company->name.'? The company will be notified.'">
+                    <x-button icon="heroicon-o-check">Approve</x-button>
+                </x-confirm-form>
+            @endif
+            @if (Route::has('admin.companies.reject') && $company->approval_status !== \App\Enums\ApprovalStatus::Rejected)
+                <button type="button" class="btn-danger" @click="$dispatch('open-modal', 'reject-company')">Reject</button>
+                <x-modal name="reject-company" :title="'Reject '.$company->name">
+                    <form method="POST" action="{{ route('admin.companies.reject', $company) }}" class="space-y-4">
+                        @csrf
+                        <x-form.textarea name="reason" label="Reason (sent to the company)" rows="3" hint="Optional, up to 500 characters." />
+                        <div class="flex justify-end gap-2">
+                            <button type="button" class="btn-secondary" @click="$dispatch('close-modal', 'reject-company')">Cancel</button>
+                            <x-button variant="danger">Reject registration</x-button>
+                        </div>
+                    </form>
+                </x-modal>
+            @endif
         </x-slot:actions>
     </x-page-header>
 
