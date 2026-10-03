@@ -44,7 +44,7 @@ class ImportController extends Controller
         if ($rows->isEmpty()) {
             // Garbage that PhpSpreadsheet sniffs as CSV/HTML yields no data rows rather than an exception.
             return redirect()->route('admin.imports.index')
-                ->with('error', 'That file could not be read as a spreadsheet. Please upload the .xlsx template.');
+                ->with('error', 'No data rows were found below the header. Fill in at least one row of the .xlsx template and upload it again.');
         }
 
         /** @var ImportResult $result */
