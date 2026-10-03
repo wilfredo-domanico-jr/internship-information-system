@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\Adviser;
 use App\Http\Controllers\Auth\AccountStatusController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterCompanyController;
 use App\Http\Controllers\Auth\RegisterInternController;
 use App\Http\Controllers\Company;
 use App\Http\Controllers\DashboardRedirectController;
@@ -17,6 +18,8 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::get('register/intern', [RegisterInternController::class, 'create'])->name('register.intern');
     Route::post('register/intern', [RegisterInternController::class, 'store'])->name('register.intern.store');
+    Route::get('register/company', [RegisterCompanyController::class, 'create'])->name('register.company');
+    Route::post('register/company', [RegisterCompanyController::class, 'store'])->name('register.company.store');
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
 });
 
