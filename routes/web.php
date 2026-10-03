@@ -72,6 +72,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('companies/{company}', [Admin\CompanyController::class, 'show'])->name('companies.show');
         Route::post('users/{user}/disable', [Admin\UserStatusController::class, 'disable'])->name('users.disable');
         Route::post('users/{user}/reactivate', [Admin\UserStatusController::class, 'reactivate'])->name('users.reactivate');
+        Route::get('classes', [Admin\ClassSectionController::class, 'index'])->name('classes.index');
+        Route::get('classes/{classSection}', [Admin\ClassSectionController::class, 'show'])->name('classes.show');
         Route::get('archive', [Admin\ArchiveController::class, 'index'])->name('archive.index');
         Route::resource('partners', Admin\PartnerCompanyController::class)->except('show')->parameters(['partners' => 'company']);
     });
