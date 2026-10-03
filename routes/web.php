@@ -61,6 +61,10 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('dashboard', Admin\DashboardController::class)->name('dashboard');
         Route::get('interns', [Admin\InternController::class, 'index'])->name('interns.index');
         Route::get('interns/{user}', [Admin\InternController::class, 'show'])->name('interns.show');
+        Route::get('advisers', [Admin\AdviserController::class, 'index'])->name('advisers.index');
+        Route::get('advisers/create', [Admin\AdviserController::class, 'create'])->name('advisers.create');
+        Route::post('advisers', [Admin\AdviserController::class, 'store'])->name('advisers.store');
+        Route::get('advisers/{user}', [Admin\AdviserController::class, 'show'])->name('advisers.show');
     });
 
     Route::prefix('adviser')->name('adviser.')->middleware('role:adviser')->group(function () {
