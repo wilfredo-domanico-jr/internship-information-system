@@ -4,14 +4,18 @@ namespace App\Notifications;
 
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class CompanyRejected extends Notification
+class CompanyRejected extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Company $company, public ?string $reason = null) {}
+    public function __construct(public Company $company, public ?string $reason = null)
+    {
+        $this->afterCommit();
+    }
 
     public function via(object $notifiable): array
     {

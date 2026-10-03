@@ -6,6 +6,7 @@ use App\Enums\ApprovalStatus;
 use App\Models\User;
 use App\Notifications\CompanyApproved;
 use App\Notifications\CompanyRejected;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 
@@ -77,4 +78,9 @@ it('rejects without a reason, pointing the company to support and recording the 
 
     expect($this->company->refresh()->approved_by)->toBe($this->admin->id);
     Notification::assertSentTo($this->companyUser, CompanyRejected::class, fn (CompanyRejected $n) => str_contains($n->toArray($this->companyUser)['body'], config('wiis.support.email')));
+});
+
+it('queues both approval notifications', function () {
+    expect(new CompanyApproved($this->company))->toBeInstanceOf(ShouldQueue::class)
+        ->and(new CompanyRejected($this->company))->toBeInstanceOf(ShouldQueue::class);
 });
