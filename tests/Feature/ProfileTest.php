@@ -75,3 +75,16 @@ it('rejects oversized or non-image avatars', function () {
     $this->actingAs($user)->post('/profile/avatar', ['avatar' => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf')])
         ->assertSessionHasErrors('avatar');
 });
+
+it('ignores role, status, email and member number in profile updates', function () {
+    $user = User::factory()->intern()->create();
+    $before = $user->only(['role', 'status', 'email', 'member_no']);
+
+    $this->actingAs($user)->put('/profile', [
+        'first_name' => 'Juan', 'last_name' => 'Cruz',
+        'role' => 'admin', 'status' => 'disabled', 'email' => 'x@y.z', 'member_no' => 'HACK',
+    ])->assertRedirect('/profile');
+
+    expect($user->fresh()->only(['role', 'status', 'email', 'member_no']))->toEqual($before)
+        ->and($user->fresh()->first_name)->toBe('Juan');
+});

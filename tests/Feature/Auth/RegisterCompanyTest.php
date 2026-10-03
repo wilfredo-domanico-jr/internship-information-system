@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\CompanyRegistered;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -64,4 +65,16 @@ it('requires both documents, the terms and a unique email', function () {
 
     $this->post('/register/company', ($this->payload)(['permit' => null, 'terms' => null]))
         ->assertSessionHasErrors(['permit', 'terms', 'email']);
+});
+
+it('throttles public registration', function () {
+    expect(Route::getRoutes()->getByName('register.company.store')->gatherMiddleware())->toContain('throttle:6,1');
+});
+
+it('ignores role and status in the registration payload', function () {
+    $this->post('/register/company', ($this->payload)(['role' => 'admin', 'status' => 'disabled']))
+        ->assertRedirect(route('account.pending'));
+
+    $user = User::where('email', 'hr@technova.example')->firstOrFail();
+    expect($user->role->value)->toBe('company')->and($user->status->value)->toBe('active');
 });

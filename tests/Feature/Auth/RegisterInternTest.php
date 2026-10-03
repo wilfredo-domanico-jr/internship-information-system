@@ -3,6 +3,7 @@
 use App\Enums\ClassStatus;
 use App\Models\ClassSection;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
 beforeEach(function () {
     $this->section = ClassSection::factory()->create(['join_code' => 'JOIN2026']);
@@ -58,4 +59,16 @@ it('rejects duplicate email and student number', function () {
 it('requires accepting the terms and a confirmed password', function () {
     $this->post('/register/intern', [...$this->payload, 'terms' => null])->assertSessionHasErrors('terms');
     $this->post('/register/intern', [...$this->payload, 'password_confirmation' => 'different'])->assertSessionHasErrors('password');
+});
+
+it('throttles public registration', function () {
+    expect(Route::getRoutes()->getByName('register.intern.store')->gatherMiddleware())->toContain('throttle:6,1');
+});
+
+it('ignores role and status in the registration payload', function () {
+    $this->post('/register/intern', [...$this->payload, 'role' => 'admin', 'status' => 'disabled'])
+        ->assertRedirect(route('intern.dashboard'));
+
+    $user = User::where('email', 'maria@example.com')->firstOrFail();
+    expect($user->role->value)->toBe('intern')->and($user->status->value)->toBe('active');
 });
