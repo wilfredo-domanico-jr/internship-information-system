@@ -12,7 +12,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Company;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\Intern;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NotificationController;
 
 Route::redirect('/', '/login')->name('home');
 
@@ -40,6 +40,11 @@ Route::middleware(['auth', 'account.usable'])->group(function () {
     Route::get('account/pending', [AccountStatusController::class, 'pending'])->name('account.pending');
     Route::get('dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::put('password', [ChangePasswordController::class, 'update'])->name('password.update');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::get('notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+    Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('dashboard', Admin\DashboardController::class)->name('dashboard');
