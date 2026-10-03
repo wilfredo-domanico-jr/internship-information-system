@@ -19,6 +19,7 @@ Read it before starting any feature work; decisions recorded there are settled.
 - PHP 8.2 is `D:\Programming_Application\xampp8.2.2\php\php.exe` (first on PATH). Node 24 / npm 11.
 - Run everything: `composer dev` (serve + queue + logs + vite). Or `php artisan serve` and `npm run dev` separately.
 - Fresh DB with demo data: `php artisan migrate:fresh --seed` (SQLite by default; MySQL supported via `.env`).
+- Queue worker for credential emails: `php artisan queue:work` (or `composer dev`).
 - Tests: `php artisan test` (Pest, in-memory SQLite). Single file: `php artisan test --filter=<Name>`.
 - Code style: `vendor/bin/pint` (check with `--test`).
 - Front-end build: `npm run build`. No CDN assets; everything goes through Vite.
@@ -37,6 +38,12 @@ Read it before starting any feature work; decisions recorded there are settled.
 - **Files are private**: uploads go to the `local` disk and are served through `FileController` after a policy
   check. Only avatars and company logos use the `public` disk.
 - **Notifications**: Laravel database notifications (`App\Notifications\*`); the topbar bell reads them.
+- **Admin portal**: controllers in `App\Http\Controllers\Admin`, admin-wide access via the `role:admin` group
+  (no per-record policy needed); imports are `App\Actions\Import*` returning `App\Support\ImportResult`,
+  all-or-nothing; spreadsheet I/O in `App\Services\Excel`.
+- **Search**: search inputs go through `App\Support\Search::any|like` (escaped LIKE).
+- **Blade attributes**: dynamic text inside Blade component-tag attributes must be a bound expression
+  (`:title="..."`), never `{{ }}` inside the attribute string.
 - **UI**: Blade + Tailwind 4 + Alpine.js. Shared Blade components in `resources/views/components`; layouts in
   `resources/views/layouts` (`app`, `auth`, `public`). Branding (institution name, logo, colors, support
   contact) comes from `config/wiis.php`.

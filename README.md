@@ -8,7 +8,7 @@ document requests and completion certificates.
 The original plain-PHP version (2023) is preserved on the [`archive/v1`](../../tree/archive/v1) branch.
 This branch is a from-scratch redesign focused on clean architecture, security and a modern UI.
 
-> **Status:** Phase 1 (foundation) complete — schema, auth for all roles, dashboards, notifications, profiles.
+> **Status:** Phases 1–2 complete — foundation (schema, auth, dashboards, notifications, profiles) and the admin portal.
 > See the [roadmap](#roadmap).
 
 ## Features
@@ -22,6 +22,18 @@ This branch is a from-scratch redesign focused on clean architecture, security a
 
 Business rules are configuration, not magic numbers: required OJT hours (486), certificate eligibility (250 h at one
 company), institution branding and support contacts live in `config/wiis.php`.
+
+### Admin imports
+
+Admin → Imports bulk-creates interns, advisers and classes from Excel.
+
+- Download the template for the import type, and add one row per record.
+- Section names must match an active class. Course codes and section names are upper-cased on import.
+- Imports are all-or-nothing: if any row is invalid, nothing is saved and the errors are listed.
+- Imported users receive a temporary password by email and should change it after first sign-in.
+- Credential emails are sent through the queue. `composer dev` runs a worker; otherwise run `php artisan queue:work`.
+  With the database queue the password sits in the queued job until the worker sends the mail, so keep the worker running.
+- With `MAIL_MAILER=log` (the default in `.env.example`) the emails land in `storage/logs/laravel.log`.
 
 ## Tech stack
 
@@ -70,6 +82,7 @@ The demo seeder is for local development and demos only; never run it against a 
   Form Requests → single-purpose `App\Actions` → Eloquent. Statuses are PHP backed enums; authorization is Policies.
 - **Hours ledger** — only the `ApproveDtr` action (planned for Phase 4) will add hours, inside a transaction, on the pending→approved transition.
 - **Private files** — uploads live on the private disk and are streamed by `FileController` after a policy check.
+- **Business-rule refusals** — actions throw `DomainRuleViolation`, which renders as a flash error.
 - **Notifications** — Laravel database notifications surface in the topbar bell.
 - **UI** — a small Blade component library (`resources/views/components`) on Tailwind 4 tokens, with dark mode.
 
@@ -83,7 +96,7 @@ vendor/bin/pint --test    # code style
 ## Roadmap
 
 - [x] Phase 1 — Foundation: schema, auth, design system, dashboards, notifications, files, profiles, CI
-- [ ] Phase 2 — Admin portal: user management, company approvals, Excel imports, charts
+- [x] Phase 2 — Admin portal: user management, company approvals, partner companies, classes, departments, Excel imports, charts
 - [ ] Phase 3 — Classroom: classes, stream, folders, submissions
 - [ ] Phase 4 — Internship core: postings, applications, interviews, placements, DTRs, certificates
 - [ ] Phase 5 — COS partner-company track
