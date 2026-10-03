@@ -1,59 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# WIIS — Web Based Internship Information System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 rebuild of my university capstone project: a platform where **interns**, **practicum advisers**,
+**partner companies** and the placement office **admin** manage the whole on-the-job-training (OJT) lifecycle —
+postings and applications, interviews, placement, daily time records and hour tracking, class requirements,
+document requests and completion certificates.
 
-## About Laravel
+The original plain-PHP version (2023) is preserved on the [`archive/v1`](../../tree/archive/v1) branch.
+This branch is a from-scratch redesign focused on clean architecture, security and a modern UI.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> **Status:** Phase 1 (foundation) complete — schema, auth for all roles, dashboards, notifications, profiles.
+> See the [roadmap](#roadmap).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Portal | What it covers |
+|---|---|
+| **Admin** | Approve company registrations (permit + MOA review), manage interns/advisers/companies, partner (COS) companies, class sections, Excel imports, activity dashboards |
+| **Adviser** | Google-Classroom-style classes: join codes, announcement stream with comments, document folders with lock/late flags, submission review, COS application and DTR approval |
+| **Company** | Internship postings, applicant pipeline with interview scheduling, intern monitoring with hour thresholds, DTR approval, document requests, certificates, placement history |
+| **Intern** | Browse and apply, track applications, join a company by code, submit DTRs, watch progress toward the required hours, request documents, receive certificates |
 
-## Learning Laravel
+Business rules are configuration, not magic numbers: required OJT hours (486), certificate eligibility (250 h at one
+company), institution branding and support contacts live in `config/wiis.php`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Tech stack
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Laravel 12 · PHP 8.2 · Blade + Tailwind CSS 4 + Alpine.js (Vite) · Pest 3 · SQLite (dev/test) or MySQL · Laravel Pint · GitHub Actions
 
-## Laravel Sponsors
+## Getting started
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone https://github.com/wilfredo-domanico-jr/internship-information-system.git
+cd internship-information-system
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite        # SQLite is the default; MySQL works by editing DB_* in .env
+php artisan migrate:fresh --seed
+php artisan storage:link
+composer dev                           # serves the app, queue worker, logs and Vite together
+```
 
-### Premium Partners
+Re-seeding requires `php artisan migrate:fresh --seed` — the demo seeder is not idempotent, so running
+`db:seed` again on a populated database will fail or create duplicates.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Open http://127.0.0.1:8000.
 
-## Contributing
+### Demo accounts
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+All demo passwords are `password`.
 
-## Code of Conduct
+| Role | Email | Notes |
+|---|---|---|
+| Admin | admin@wiis.test | Placement office |
+| Adviser | adviser@wiis.test | Advises class `CC101 · SBIT-4C` (join code `SBIT4C26`) |
+| Company | company@wiis.test | TechNova Solutions Inc., approved, company code `TECHNOVA` |
+| Company | pending@wiis.test | Awaiting admin verification |
+| Intern | intern@wiis.test | Placed at TechNova with 300 approved hours |
+| Intern | intern2@wiis.test | Enrolled in the class, not yet placed |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The demo seeder is for local development and demos only; never run it against a production database.
 
-## Security Vulnerabilities
+## Architecture notes
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Roles** — one `users` table with a `role` enum; role data lives in `intern_profiles` and `companies`.
+  `companies.user_id` is nullable: partner (COS) companies exist without a login.
+- **Layers** — thin controllers per portal (`App\Http\Controllers\{Admin,Adviser,Company,Intern}`) →
+  Form Requests → single-purpose `App\Actions` → Eloquent. Statuses are PHP backed enums; authorization is Policies.
+- **Hours ledger** — only the `ApproveDtr` action adds hours, inside a transaction, on the pending→approved transition.
+- **Private files** — uploads live on the private disk and are streamed by `FileController` after a policy check.
+- **Notifications** — Laravel database notifications surface in the topbar bell.
+- **UI** — a small Blade component library (`resources/views/components`) on Tailwind 4 tokens, with dark mode.
 
-## License
+## Testing
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan test          # Pest, in-memory SQLite
+vendor/bin/pint --test    # code style
+```
+
+## Roadmap
+
+- [x] Phase 1 — Foundation: schema, auth, design system, dashboards, notifications, files, profiles, CI
+- [ ] Phase 2 — Admin portal: user management, company approvals, Excel imports, charts
+- [ ] Phase 3 — Classroom: classes, stream, folders, submissions
+- [ ] Phase 4 — Internship core: postings, applications, interviews, placements, DTRs, certificates
+- [ ] Phase 5 — COS partner-company track
+- [ ] Phase 6 — Public site, demo mode, polish
+
+## What changed from the legacy app
+
+The 2023 version stored plaintext passwords, interpolated request input into SQL, served every upload from the web
+root, ran state changes over GET links without CSRF protection, and kept notifications inside the interview table.
+The rebuild replaces all of that with hashed credentials, Eloquent and Form Requests, private authorized downloads,
+POST/DELETE with CSRF, real foreign keys, and one normalized table per concept.
