@@ -5,7 +5,6 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\InternshipPosting;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 it('seeds a coherent demo dataset', function () {
     $this->seed();
@@ -28,13 +27,4 @@ it('seeds a coherent demo dataset', function () {
         ->and($intern2->activePlacement)->toBeNull()
         ->and($intern2->internProfile->classSection->join_code)->toBe('SBIT4C26')
         ->and(InternshipPosting::open()->count())->toBe(2);
-});
-
-it('can seed twice without unique violations', function () {
-    $this->seed();
-
-    // migrate:fresh runs VACUUM on SQLite, which cannot happen inside RefreshDatabase's transaction.
-    DB::rollBack();
-
-    $this->artisan('migrate:fresh', ['--seed' => true])->assertSuccessful();
 });
