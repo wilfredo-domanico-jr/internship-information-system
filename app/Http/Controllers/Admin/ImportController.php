@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ImportAdvisers;
+use App\Actions\ImportClasses;
 use App\Actions\ImportInterns;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ImportRequest;
@@ -11,6 +13,7 @@ use App\Support\ImportColumns;
 use App\Support\ImportResult;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ImportController extends Controller
@@ -31,12 +34,24 @@ class ImportController extends Controller
     {
         abort_unless(in_array($type, ImportColumns::TYPES, true), 404);
 
-        $rows = $reader->read($request->file('file')->getRealPath());
+        try {
+            $rows = $reader->read($request->file('file')->getRealPath());
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception|Exception $e) {
+            return redirect()->route('admin.imports.index')
+                ->with('error', 'That file could not be read as a spreadsheet. Please upload the .xlsx template.');
+        }
+
+        if ($rows->isEmpty()) {
+            // Garbage that PhpSpreadsheet sniffs as CSV/HTML yields no data rows rather than an exception.
+            return redirect()->route('admin.imports.index')
+                ->with('error', 'That file could not be read as a spreadsheet. Please upload the .xlsx template.');
+        }
 
         /** @var ImportResult $result */
         $result = match ($type) {
             'interns' => app(ImportInterns::class)($rows),
-            // Task 13 adds: 'advisers' => app(ImportAdvisers::class)($rows), 'classes' => app(ImportClasses::class)($rows),
+            'advisers' => app(ImportAdvisers::class)($rows),
+            'classes' => app(ImportClasses::class)($rows),
             default => abort(404),
         };
 
@@ -44,7 +59,7 @@ class ImportController extends Controller
             ->with('import_result', $result->toArray())
             ->with($result->failed() ? 'error' : 'success', $result->failed()
                 ? 'The import was not applied because some rows have errors.'
-                : "{$result->created} {$type} imported. Credential emails are queued.");
+                : "{$result->created} {$type} imported.".($type !== 'classes' ? ' Credential emails are queued.' : ''));
     }
 
     public function template(string $type, TemplateBuilder $templates): BinaryFileResponse
