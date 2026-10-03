@@ -53,3 +53,9 @@ it('scopes active classes', function () {
 
     expect(ClassSection::active()->count())->toBe(1);
 });
+
+it('formats the schedule label from H:i times', function () {
+    $section = ClassSection::factory()->make(['day' => 'Monday', 'starts_at' => '08:00', 'ends_at' => '12:00']);
+
+    expect($section->schedule_label)->toBe('Monday 8:00 AM – 12:00 PM');
+});

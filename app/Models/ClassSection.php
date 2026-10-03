@@ -31,8 +31,8 @@ class ClassSection extends Model
     protected function scheduleLabel(): Attribute
     {
         return Attribute::get(function () {
-            $from = Carbon::createFromFormat('H:i:s', $this->starts_at)->format('g:i A');
-            $to = Carbon::createFromFormat('H:i:s', $this->ends_at)->format('g:i A');
+            $from = Carbon::parse($this->starts_at)->format('g:i A');
+            $to = Carbon::parse($this->ends_at)->format('g:i A');
 
             return "{$this->day} {$from} – {$to}";
         });

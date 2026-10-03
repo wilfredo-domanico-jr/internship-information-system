@@ -53,7 +53,7 @@ return new class extends Migration
 
         Schema::create('cos_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->restrictOnDelete();
             $table->foreignId('intern_id')->constrained('users')->cascadeOnDelete();
             $table->string('acceptance_letter_path');
             $table->string('status', 20)->default('pending')->index();
@@ -64,8 +64,8 @@ return new class extends Migration
 
         Schema::create('placements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('intern_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('intern_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('company_id')->constrained()->restrictOnDelete();
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
             $table->date('started_at');
             $table->date('ended_at')->nullable();

@@ -56,3 +56,15 @@ it('lists open postings per company with their applications', function () {
 it('stores notifications in the database', function () {
     expect(Schema::hasTable('notifications'))->toBeTrue();
 });
+
+it('refuses to delete a company that has placements', function () {
+    $placement = Placement::factory()->create();
+
+    $placement->company->delete();
+})->throws(QueryException::class);
+
+it('refuses to delete an intern that has placements', function () {
+    $placement = Placement::factory()->create();
+
+    $placement->intern->delete();
+})->throws(QueryException::class);
