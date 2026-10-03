@@ -68,7 +68,7 @@ The demo seeder is for local development and demos only; never run it against a 
   `companies.user_id` is nullable: partner (COS) companies exist without a login.
 - **Layers** — thin controllers per portal (`App\Http\Controllers\{Admin,Adviser,Company,Intern}`) →
   Form Requests → single-purpose `App\Actions` → Eloquent. Statuses are PHP backed enums; authorization is Policies.
-- **Hours ledger** — only the `ApproveDtr` action adds hours, inside a transaction, on the pending→approved transition.
+- **Hours ledger** — only the `ApproveDtr` action (planned for Phase 4) will add hours, inside a transaction, on the pending→approved transition.
 - **Private files** — uploads live on the private disk and are streamed by `FileController` after a policy check.
 - **Notifications** — Laravel database notifications surface in the topbar bell.
 - **UI** — a small Blade component library (`resources/views/components`) on Tailwind 4 tokens, with dark mode.
@@ -94,4 +94,4 @@ vendor/bin/pint --test    # code style
 The 2023 version stored plaintext passwords, interpolated request input into SQL, served every upload from the web
 root, ran state changes over GET links without CSRF protection, and kept notifications inside the interview table.
 The rebuild replaces all of that with hashed credentials, Eloquent and Form Requests, private authorized downloads,
-POST/DELETE with CSRF, real foreign keys, and one normalized table per concept.
+POST/PUT/DELETE with CSRF on state changes, real foreign keys, and one normalized table per concept.
