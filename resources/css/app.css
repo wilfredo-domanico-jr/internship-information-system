@@ -6,3 +6,83 @@
 @source "../../app/Enums";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+    /* Evergreen teal, the WIIS brand hue. */
+    --color-brand-50: #eefaf6;
+    --color-brand-100: #d5f2e8;
+    --color-brand-200: #aee4d3;
+    --color-brand-300: #79cfb8;
+    --color-brand-400: #46b39a;
+    --color-brand-500: #249880;
+    --color-brand-600: #187a68;
+    --color-brand-700: #166255;
+    --color-brand-800: #154e45;
+    --color-brand-900: #13413a;
+    --color-brand-950: #082522;
+
+    /* Warm surfaces instead of flat gray. */
+    --color-surface: #faf9f6;
+    --color-surface-raised: #ffffff;
+    --color-surface-dark: #0e1514;
+    --color-surface-dark-raised: #151f1d;
+
+    --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+}
+
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500
+        disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility input {
+    @apply block w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-stone-900 shadow-sm
+        placeholder:text-stone-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none
+        dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100 dark:placeholder:text-stone-500;
+}
+
+@layer base {
+    html {
+        font-family: var(--font-sans);
+    }
+
+    body {
+        @apply bg-surface text-stone-800 antialiased dark:bg-surface-dark dark:text-stone-100;
+    }
+
+    h1, h2, h3, .font-display {
+        font-family: var(--font-display);
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-2xl border border-stone-200/80 bg-white shadow-card dark:border-stone-800 dark:bg-surface-dark-raised;
+    }
+
+    .btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800; }
+    .btn-secondary { @apply btn border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-200 dark:hover:bg-stone-800; }
+    .btn-danger { @apply btn bg-rose-600 text-white hover:bg-rose-700; }
+    .btn-ghost { @apply btn text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800; }
+
+    .input-error { @apply border-rose-400 focus:border-rose-500 focus:ring-rose-500/20; }
+    .label { @apply mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300; }
+
+    .data-table th { @apply px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-stone-500; }
+    .data-table td { @apply px-5 py-3.5 align-middle; }
+}
