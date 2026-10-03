@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import Chart from 'chart.js/auto';
 
 window.Alpine = Alpine;
 
@@ -14,5 +15,22 @@ Alpine.store('theme', {
         }
     },
 });
+
+Alpine.data('chart', () => ({
+    instance: null,
+    init() {
+        const config = JSON.parse(this.$el.dataset.chart);
+        config.options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, usePointStyle: true } } },
+            ...(config.options ?? {}),
+        };
+        this.instance = new Chart(this.$el, config);
+    },
+    destroy() {
+        this.instance?.destroy();
+    },
+}));
 
 Alpine.start();
