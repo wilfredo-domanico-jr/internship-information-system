@@ -3,6 +3,7 @@
 use App\Models\Company;
 use App\Models\User;
 use App\Notifications\CompanyRegistered;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     $this->admin = User::factory()->admin()->create();
@@ -54,4 +55,32 @@ it('returns 404 for another user\'s notification', function () {
     $this->actingAs($this->admin)->delete("/notifications/{$foreign->id}")->assertNotFound();
 
     expect($foreign->fresh())->not->toBeNull();
+});
+
+function rawNotification(User $user, array $data)
+{
+    return $user->notifications()->create([
+        'id' => (string) Str::uuid(),
+        'type' => 'App\\Notifications\\CompanyRegistered',
+        'data' => $data,
+    ]);
+}
+
+it('does not follow off-site notification urls', function (string $url) {
+    $n = rawNotification($this->admin, ['title' => 'T', 'body' => 'B', 'url' => $url]);
+
+    $this->actingAs($this->admin)->get(route('notifications.open', $n->id))->assertRedirect(route('notifications.index'));
+    expect($n->fresh()->read_at)->not->toBeNull();
+})->with(['https://evil.example/x', '//evil.example/x']);
+
+it('follows relative notification urls', function () {
+    $n = rawNotification($this->admin, ['title' => 'T', 'body' => 'B', 'url' => '/admin/dashboard']);
+
+    $this->actingAs($this->admin)->get(route('notifications.open', $n->id))->assertRedirect('/admin/dashboard');
+});
+
+it('renders notifications with a bogus icon and no title', function () {
+    rawNotification($this->admin, ['icon' => 'script']);
+
+    $this->actingAs($this->admin)->get('/notifications')->assertOk();
 });

@@ -1,5 +1,5 @@
 <x-layouts.app title="Dashboard">
-    <x-page-header title="Hello, {{ auth()->user()->first_name }}" subtitle="Your classes and the interns you advise." />
+    <x-page-header :title="'Hello, '.auth()->user()->first_name" subtitle="Your classes and the interns you advise." />
 
     <div class="grid gap-4 sm:grid-cols-3">
         <x-stat-card label="Classes" :value="$stats['classes']" icon="heroicon-o-rectangle-group" />

@@ -19,8 +19,8 @@
         </div>
         @forelse ($latest as $notification)
             <a href="{{ route('notifications.open', $notification->id) }}" class="block rounded-xl px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800">
-                <p class="truncate text-sm font-medium">{{ $notification->data['title'] }}</p>
-                <p class="line-clamp-2 text-xs text-stone-500">{{ $notification->data['body'] }}</p>
+                <p class="truncate text-sm font-medium">{{ $notification->data['title'] ?? '' }}</p>
+                <p class="line-clamp-2 text-xs text-stone-500">{{ $notification->data['body'] ?? '' }}</p>
             </a>
         @empty
             <p class="px-3 py-4 text-center text-sm text-stone-500">No unread notifications</p>

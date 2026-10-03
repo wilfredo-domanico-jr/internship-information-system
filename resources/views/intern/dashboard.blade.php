@@ -1,5 +1,5 @@
 <x-layouts.app title="Dashboard">
-    <x-page-header title="Hi, {{ auth()->user()->first_name }}" subtitle="Track your hours, placement and class in one place." />
+    <x-page-header :title="'Hi, '.auth()->user()->first_name" subtitle="Track your hours, placement and class in one place." />
 
     <div class="grid gap-4 lg:grid-cols-3">
         <x-card title="OJT progress" class="lg:row-span-2">

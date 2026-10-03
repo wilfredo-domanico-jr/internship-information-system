@@ -2,6 +2,7 @@
 
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -15,7 +16,8 @@ it('lets admins download a company permit', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('files.show', ['company-permit', $this->company->id]))
         ->assertOk()
-        ->assertHeader('content-type', 'application/pdf');
+        ->assertHeader('content-type', 'application/pdf')
+        ->assertHeader('X-Content-Type-Options', 'nosniff');
 });
 
 it('lets the owning company download its own permit', function () {
@@ -44,4 +46,8 @@ it('returns 404 for unknown kinds, missing records and missing files', function 
 
 it('requires authentication', function () {
     $this->get(route('files.show', ['company-permit', $this->company->id]))->assertRedirect(route('login'));
+});
+
+it('does not expose the local disk through signed storage routes', function () {
+    expect(Route::has('storage.local'))->toBeFalse();
 });

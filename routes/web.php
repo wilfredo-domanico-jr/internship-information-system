@@ -24,9 +24,9 @@ Route::redirect('/', '/login')->name('home');
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'create'])->name('login');
     Route::get('register/intern', [RegisterInternController::class, 'create'])->name('register.intern');
-    Route::post('register/intern', [RegisterInternController::class, 'store'])->name('register.intern.store');
+    Route::post('register/intern', [RegisterInternController::class, 'store'])->middleware('throttle:6,1')->name('register.intern.store');
     Route::get('register/company', [RegisterCompanyController::class, 'create'])->name('register.company');
-    Route::post('register/company', [RegisterCompanyController::class, 'store'])->name('register.company.store');
+    Route::post('register/company', [RegisterCompanyController::class, 'store'])->middleware('throttle:6,1')->name('register.company.store');
     Route::post('login', [LoginController::class, 'store'])->name('login.store');
     Route::get('password/forgot', [ForgotPasswordController::class, 'create'])->name('password.request');
     Route::post('password/forgot', [ForgotPasswordController::class, 'store'])->middleware('throttle:6,1')->name('password.email');
@@ -35,12 +35,12 @@ Route::middleware('guest')->group(function () {
 });
 
 /* Signed-in users, regardless of account state (a pending company can still log out) */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
 /* Any signed-in user */
-Route::middleware(['auth', 'account.usable'])->group(function () {
+Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function () {
     Route::get('account/pending', [AccountStatusController::class, 'pending'])->name('account.pending');
     Route::get('dashboard', DashboardRedirectController::class)->name('dashboard');
     Route::put('password', [ChangePasswordController::class, 'update'])->name('password.update');

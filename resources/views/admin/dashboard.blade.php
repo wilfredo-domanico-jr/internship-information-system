@@ -1,10 +1,10 @@
 <x-layouts.app title="Dashboard">
-    <x-page-header title="Welcome back, {{ auth()->user()->first_name }}" subtitle="An overview of {{ config('wiis.institution.short') }} internship activity." />
+    <x-page-header :title="'Welcome back, '.auth()->user()->first_name" :subtitle="'An overview of '.config('wiis.institution.short').' internship activity.'" />
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <x-stat-card label="Active interns" :value="$stats['interns']" icon="heroicon-o-academic-cap" />
         <x-stat-card label="Advisers" :value="$stats['advisers']" icon="heroicon-o-user-group" color="sky" />
-        <x-stat-card label="Partner companies" :value="$stats['companies']" icon="heroicon-o-building-office-2" color="green" />
+        <x-stat-card label="Verified companies" :value="$stats['companies']" icon="heroicon-o-building-office-2" color="green" />
         <x-stat-card label="Awaiting approval" :value="$stats['pending_companies']" icon="heroicon-o-clock" color="amber" />
     </div>
 

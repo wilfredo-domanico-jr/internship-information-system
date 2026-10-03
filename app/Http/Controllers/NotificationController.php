@@ -20,7 +20,17 @@ class NotificationController extends Controller
         $notification = $request->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
 
-        return redirect($notification->data['url'] ?? route('notifications.index'));
+        $url = $notification->data['url'] ?? null;
+
+        if (is_string($url) && ! str_starts_with($url, '//')) {
+            $host = parse_url($url, PHP_URL_HOST);
+
+            if ($host === null || $host === $request->getHost()) {
+                return redirect($url);
+            }
+        }
+
+        return redirect()->route('notifications.index');
     }
 
     public function readAll(Request $request): RedirectResponse

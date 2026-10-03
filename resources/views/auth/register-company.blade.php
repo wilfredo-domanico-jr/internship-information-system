@@ -33,8 +33,8 @@
 
         <fieldset class="space-y-5">
             <legend class="text-xs font-semibold uppercase tracking-wider text-stone-500">Verification documents</legend>
-            <x-form.file name="permit" label="Business permit (PDF)" accept="application/pdf" hint="PDF up to {{ config('wiis.uploads.max_pdf_kb') / 1024 }} MB." required />
-            <x-form.file name="moa" label="Memorandum of Agreement (PDF)" accept="application/pdf" hint="PDF up to {{ config('wiis.uploads.max_pdf_kb') / 1024 }} MB." required />
+            <x-form.file name="permit" label="Business permit (PDF)" accept="application/pdf" :hint="'PDF up to '.(config('wiis.uploads.max_pdf_kb') / 1024).' MB.'" required />
+            <x-form.file name="moa" label="Memorandum of Agreement (PDF)" accept="application/pdf" :hint="'PDF up to '.(config('wiis.uploads.max_pdf_kb') / 1024).' MB.'" required />
         </fieldset>
 
         <x-form.checkbox name="terms" label="I agree to the terms and conditions of the internship program." />

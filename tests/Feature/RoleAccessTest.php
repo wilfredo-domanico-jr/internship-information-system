@@ -27,12 +27,29 @@ it('sends each role to its own dashboard', function (string $state, string $rout
     ['intern', 'intern.dashboard'],
 ]);
 
-it('forbids access to other portals', function () {
-    $intern = User::factory()->intern()->create();
+it('isolates every role from every other portal', function (string $state, string $own, string $target) {
+    $user = User::factory()->{$state}()->create();
 
-    $this->actingAs($intern)->get(route('admin.dashboard'))->assertForbidden();
-    $this->actingAs($intern)->get(route('adviser.dashboard'))->assertForbidden();
-    $this->actingAs($intern)->get(route('company.dashboard'))->assertForbidden();
+    $response = $this->actingAs($user)->get(route($target));
+
+    $own === $target ? $response->assertOk() : $response->assertForbidden();
+})->with(function () {
+    $roles = ['admin', 'adviser', 'company', 'intern'];
+
+    foreach ($roles as $role) {
+        foreach ($roles as $portal) {
+            yield "{$role} -> {$portal}" => [$role, "{$role}.dashboard", "{$portal}.dashboard"];
+        }
+    }
+});
+
+it('escapes names in dashboard headers exactly once', function () {
+    $intern = User::factory()->intern()->create(['first_name' => "O'Brien"]);
+
+    $html = $this->actingAs($intern)->get(route('intern.dashboard'))->assertOk()->getContent();
+
+    expect(substr_count($html, 'Hi, O&#039;Brien'))->toBe(1)
+        ->and($html)->not->toContain('&amp;#039;');
 });
 
 it('holds unapproved companies on the pending page', function () {

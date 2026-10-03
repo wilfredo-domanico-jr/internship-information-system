@@ -53,3 +53,10 @@ it('does not re-check a default-checked checkbox after failed validation', funct
 
     expect($render())->not->toContain('checked');
 });
+
+it('passes extra attributes through file and checkbox inputs', function () {
+    view()->share('errors', new ViewErrorBag);
+
+    expect(Blade::render('<x-form.file name="docs" multiple />'))->toContain('multiple')
+        ->and(Blade::render('<x-form.checkbox name="agree" label="Agree" data-x="1" />'))->toContain('data-x="1"');
+});

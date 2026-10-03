@@ -24,6 +24,9 @@ class FileController extends Controller
 
         $extension = pathinfo($path, PATHINFO_EXTENSION) ?: 'pdf';
 
-        return Storage::disk('local')->response($path, "{$kind}-{$id}.{$extension}");
+        $response = Storage::disk('local')->response($path, "{$kind}-{$id}.{$extension}");
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+
+        return $response;
     }
 }

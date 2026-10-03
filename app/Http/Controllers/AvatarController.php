@@ -13,9 +13,11 @@ class AvatarController extends Controller
     {
         $user = $request->user();
 
-        $this->deleteExisting($user->avatar_path);
+        $old = $user->avatar_path;
 
         $user->update(['avatar_path' => $request->file('avatar')->store('avatars', 'public')]);
+
+        $this->deleteExisting($old);
 
         return redirect()->route('profile.edit')->with('success', 'Profile photo updated.');
     }

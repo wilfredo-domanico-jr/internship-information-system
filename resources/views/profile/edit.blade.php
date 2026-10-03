@@ -12,7 +12,7 @@
                     </div>
                     <form method="POST" action="{{ route('profile.avatar.store') }}" enctype="multipart/form-data" class="w-full space-y-3">
                         @csrf
-                        <x-form.file name="avatar" accept="image/png,image/jpeg,image/webp" hint="PNG, JPG or WebP up to {{ config('wiis.uploads.max_avatar_kb') / 1024 }} MB." />
+                        <x-form.file name="avatar" accept="image/png,image/jpeg,image/webp" :hint="'PNG, JPG or WebP up to '.(config('wiis.uploads.max_avatar_kb') / 1024).' MB.'" />
                         <x-button variant="secondary" class="w-full">Upload photo</x-button>
                     </form>
                     @if ($user->avatar_path)
