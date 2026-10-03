@@ -75,3 +75,12 @@ it('logs out a user who was disabled after signing in', function () {
     $this->get(route('intern.dashboard'))->assertRedirect(route('login'));
     $this->assertGuest();
 });
+
+it('renders the company code copy handler as compiled JavaScript', function () {
+    $user = User::factory()->company()->create();
+
+    $this->actingAs($user)->get(route('company.dashboard'))
+        ->assertOk()
+        ->assertSee($user->company->company_code)
+        ->assertDontSee('@js(', false);
+});
