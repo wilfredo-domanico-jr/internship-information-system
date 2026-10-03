@@ -70,6 +70,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::post('companies/{company}/approve', [Admin\CompanyApprovalController::class, 'approve'])->name('companies.approve');
         Route::post('companies/{company}/reject', [Admin\CompanyApprovalController::class, 'reject'])->name('companies.reject');
         Route::get('companies/{company}', [Admin\CompanyController::class, 'show'])->name('companies.show');
+        Route::post('users/{user}/disable', [Admin\UserStatusController::class, 'disable'])->name('users.disable');
+        Route::post('users/{user}/reactivate', [Admin\UserStatusController::class, 'reactivate'])->name('users.reactivate');
+        Route::get('archive', [Admin\ArchiveController::class, 'index'])->name('archive.index');
     });
 
     Route::prefix('adviser')->name('adviser.')->middleware('role:adviser')->group(function () {

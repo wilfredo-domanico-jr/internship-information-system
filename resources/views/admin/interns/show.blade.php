@@ -45,6 +45,6 @@
             </x-table>
         </x-card>
 
-        {{-- Task 7 adds the account-status "Danger zone" card here --}}
+        @include('admin.partials.account-status', ['user' => $intern])
     </div>
 </x-layouts.app>
