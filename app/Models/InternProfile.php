@@ -30,4 +30,9 @@ class InternProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function classSection(): BelongsTo
+    {
+        return $this->belongsTo(ClassSection::class);
+    }
 }
