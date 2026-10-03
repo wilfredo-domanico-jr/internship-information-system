@@ -75,6 +75,10 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('classes', [Admin\ClassSectionController::class, 'index'])->name('classes.index');
         Route::get('classes/{classSection}', [Admin\ClassSectionController::class, 'show'])->name('classes.show');
         Route::get('archive', [Admin\ArchiveController::class, 'index'])->name('archive.index');
+        Route::get('departments', [Admin\DepartmentController::class, 'index'])->name('departments.index');
+        Route::post('departments', [Admin\DepartmentController::class, 'store'])->name('departments.store');
+        Route::put('departments/{department}', [Admin\DepartmentController::class, 'update'])->name('departments.update');
+        Route::delete('departments/{department}', [Admin\DepartmentController::class, 'destroy'])->name('departments.destroy');
         Route::resource('partners', Admin\PartnerCompanyController::class)->except('show')->parameters(['partners' => 'company']);
     });
 
