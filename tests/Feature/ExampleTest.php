@@ -1,5 +1,5 @@
 <?php
 
-it('serves the welcome page', function () {
-    $this->get('/')->assertOk()->assertSee('WIIS');
+it('redirects the root to login', function () {
+    $this->get('/')->assertRedirect('/login');
 });

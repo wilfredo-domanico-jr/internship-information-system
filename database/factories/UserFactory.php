@@ -31,6 +31,8 @@ class UserFactory extends Factory
             'member_no' => fn (array $attributes) => $this->memberNo($attributes['role']),
             'status' => AccountStatus::Active,
             'phone' => fake()->numerify('09#########'),
+            'avatar_path' => null,
+            'last_login_at' => null,
             'remember_token' => Str::random(10),
         ];
     }
