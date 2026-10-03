@@ -78,6 +78,11 @@ class Company extends Model
         return $this->hasMany(InternshipPosting::class)->latest();
     }
 
+    public function cosApplications(): HasMany
+    {
+        return $this->hasMany(CosApplication::class);
+    }
+
     public function placements(): HasMany
     {
         return $this->hasMany(Placement::class);

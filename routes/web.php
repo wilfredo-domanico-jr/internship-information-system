@@ -73,6 +73,7 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::post('users/{user}/disable', [Admin\UserStatusController::class, 'disable'])->name('users.disable');
         Route::post('users/{user}/reactivate', [Admin\UserStatusController::class, 'reactivate'])->name('users.reactivate');
         Route::get('archive', [Admin\ArchiveController::class, 'index'])->name('archive.index');
+        Route::resource('partners', Admin\PartnerCompanyController::class)->except('show')->parameters(['partners' => 'company']);
     });
 
     Route::prefix('adviser')->name('adviser.')->middleware('role:adviser')->group(function () {
