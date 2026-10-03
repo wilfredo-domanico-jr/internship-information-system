@@ -77,6 +77,7 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('archive', [Admin\ArchiveController::class, 'index'])->name('archive.index');
         Route::get('imports', [Admin\ImportController::class, 'index'])->name('imports.index');
         Route::get('imports/templates/{type}', [Admin\ImportController::class, 'template'])->name('imports.template');
+        Route::post('imports/{type}', [Admin\ImportController::class, 'store'])->name('imports.store');
         Route::get('departments', [Admin\DepartmentController::class, 'index'])->name('departments.index');
         Route::post('departments', [Admin\DepartmentController::class, 'store'])->name('departments.store');
         Route::put('departments/{department}', [Admin\DepartmentController::class, 'update'])->name('departments.update');

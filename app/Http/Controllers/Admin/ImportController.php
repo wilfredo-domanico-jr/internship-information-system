@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ImportInterns;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ImportRequest;
+use App\Services\Excel\SpreadsheetReader;
 use App\Services\Excel\TemplateBuilder;
 use App\Support\ImportColumns;
+use App\Support\ImportResult;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -20,6 +25,26 @@ class ImportController extends Controller
             ],
             'result' => session('import_result'),
         ]);
+    }
+
+    public function store(ImportRequest $request, string $type, SpreadsheetReader $reader): RedirectResponse
+    {
+        abort_unless(in_array($type, ImportColumns::TYPES, true), 404);
+
+        $rows = $reader->read($request->file('file')->getRealPath());
+
+        /** @var ImportResult $result */
+        $result = match ($type) {
+            'interns' => app(ImportInterns::class)($rows),
+            // Task 13 adds: 'advisers' => app(ImportAdvisers::class)($rows), 'classes' => app(ImportClasses::class)($rows),
+            default => abort(404),
+        };
+
+        return redirect()->route('admin.imports.index')
+            ->with('import_result', $result->toArray())
+            ->with($result->failed() ? 'error' : 'success', $result->failed()
+                ? 'The import was not applied because some rows have errors.'
+                : "{$result->created} {$type} imported. Credential emails are queued.");
     }
 
     public function template(string $type, TemplateBuilder $templates): BinaryFileResponse
