@@ -12,6 +12,7 @@ use App\Services\Excel\TemplateBuilder;
 use App\Support\ImportColumns;
 use App\Support\ImportResult;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -36,7 +37,7 @@ class ImportController extends Controller
 
         try {
             $rows = $reader->read($request->file('file')->getRealPath());
-        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception|Exception $e) {
+        } catch (Exception) {
             return redirect()->route('admin.imports.index')
                 ->with('error', 'That file could not be read as a spreadsheet. Please upload the .xlsx template.');
         }
@@ -46,6 +47,13 @@ class ImportController extends Controller
             return redirect()->route('admin.imports.index')
                 ->with('error', 'No data rows were found below the header. Fill in at least one row of the .xlsx template and upload it again.');
         }
+
+        $max = (int) config('wiis.imports.max_rows');
+        if ($rows->count() > $max) {
+            return redirect()->route('admin.imports.index')
+                ->with('error', "This file has {$rows->count()} rows; imports are limited to {$max} rows per upload. Split the file and try again.");
+        }
+        set_time_limit(max(60, (int) ceil($rows->count() * 0.5)));
 
         /** @var ImportResult $result */
         $result = match ($type) {
@@ -59,7 +67,7 @@ class ImportController extends Controller
             ->with('import_result', $result->toArray())
             ->with($result->failed() ? 'error' : 'success', $result->failed()
                 ? 'The import was not applied because some rows have errors.'
-                : "{$result->created} {$type} imported.".($type !== 'classes' ? ' Credential emails are queued.' : ''));
+                : "{$result->created} ".Str::plural(['interns' => 'intern', 'advisers' => 'adviser', 'classes' => 'class'][$type], $result->created).' imported.'.($type !== 'classes' ? ' Credential emails are queued.' : ''));
     }
 
     public function template(string $type, TemplateBuilder $templates): BinaryFileResponse

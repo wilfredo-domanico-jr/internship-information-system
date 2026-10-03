@@ -7,6 +7,7 @@ use App\Enums\Role;
 use App\Models\User;
 use App\Notifications\AccountCredentials;
 use App\Services\MemberNumberGenerator;
+use App\Support\ImportColumns;
 use App\Support\ImportResult;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -28,15 +29,23 @@ class ImportAdvisers
             $rowNo = (int) ($row['_row'] ?? 0);
             $email = Str::lower(trim((string) ($row['email'] ?? '')));
 
+            if (ImportColumns::isExampleRow('advisers', $row)) {
+                $result->addError($rowNo, "This is the template's example row; delete it before importing.");
+            }
+
             $validator = Validator::make([
                 'first_name' => $row['first_name'] ?? null,
+                'middle_name' => $row['middle_name'] ?? null,
                 'last_name' => $row['last_name'] ?? null,
                 'email' => $email ?: null,
+                'phone' => $row['phone'] ?? null,
             ], [
                 'first_name' => ['required', 'string', 'max:100'],
+                'middle_name' => ['nullable', 'string', 'max:100'],
                 'last_name' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            ], [], ['first_name' => 'first name', 'last_name' => 'last name']);
+                'phone' => ['nullable', 'string', 'max:30'],
+            ], [], ['first_name' => 'first name', 'middle_name' => 'middle name', 'last_name' => 'last name']);
 
             foreach ($validator->errors()->all() as $message) {
                 $result->addError($rowNo, $message);

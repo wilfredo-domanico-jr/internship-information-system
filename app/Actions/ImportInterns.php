@@ -9,6 +9,7 @@ use App\Models\InternProfile;
 use App\Models\User;
 use App\Notifications\AccountCredentials;
 use App\Services\MemberNumberGenerator;
+use App\Support\ImportColumns;
 use App\Support\ImportResult;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -34,21 +35,31 @@ class ImportInterns
             $studentNumber = trim((string) ($row['student_number'] ?? ''));
             $sectionKey = Str::lower(trim((string) ($row['section'] ?? '')));
 
+            if (ImportColumns::isExampleRow('interns', $row)) {
+                $result->addError($rowNo, "This is the template's example row; delete it before importing.");
+            }
+
             $validator = Validator::make([
                 'first_name' => $row['first_name'] ?? null,
+                'middle_name' => $row['middle_name'] ?? null,
                 'last_name' => $row['last_name'] ?? null,
                 'email' => $email ?: null,
+                'phone' => $row['phone'] ?? null,
+                'gender' => $row['gender'] ?? null,
                 'student_number' => $studentNumber ?: null,
                 'section' => $sectionKey ?: null,
                 'school_year' => $row['school_year'] ?? null,
             ], [
                 'first_name' => ['required', 'string', 'max:100'],
+                'middle_name' => ['nullable', 'string', 'max:100'],
                 'last_name' => ['required', 'string', 'max:100'],
                 'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+                'phone' => ['nullable', 'string', 'max:30'],
+                'gender' => ['nullable', 'string', 'max:20'],
                 'student_number' => ['required', 'string', 'max:30', 'unique:intern_profiles,student_number'],
                 'section' => ['required', 'string'],
                 'school_year' => ['nullable', 'string', 'max:20'],
-            ], [], ['first_name' => 'first name', 'last_name' => 'last name', 'student_number' => 'student number']);
+            ], [], ['first_name' => 'first name', 'middle_name' => 'middle name', 'last_name' => 'last name', 'student_number' => 'student number']);
 
             foreach ($validator->errors()->all() as $message) {
                 $result->addError($rowNo, $message);
@@ -66,10 +77,14 @@ class ImportInterns
             $section = null;
             if ($sectionKey !== '') {
                 $matches = $sections->get($sectionKey, collect());
+                $yearKey = Str::lower(trim((string) ($row['school_year'] ?? '')));
+                if ($yearKey !== '') {
+                    $matches = $matches->filter(fn (ClassSection $s) => Str::lower(trim($s->school_year)) === $yearKey);
+                }
                 if ($matches->isEmpty()) {
                     $result->addError($rowNo, "No active class has the section \"{$row['section']}\".");
                 } elseif ($matches->count() > 1) {
-                    $result->addError($rowNo, "The section \"{$row['section']}\" matches more than one active class; archive the old one first.");
+                    $result->addError($rowNo, "The section \"{$row['section']}\" matches more than one active class; add the school_year column to choose one.");
                 } else {
                     $section = $matches->first();
                 }
@@ -81,6 +96,7 @@ class ImportInterns
                 'last_name' => trim((string) ($row['last_name'] ?? '')),
                 'email' => $email,
                 'phone' => filled($row['phone'] ?? null) ? trim((string) $row['phone']) : null,
+                'gender' => filled($row['gender'] ?? null) ? trim((string) $row['gender']) : null,
                 'student_number' => $studentNumber,
                 'school_year' => filled($row['school_year'] ?? null) ? trim((string) $row['school_year']) : $section?->school_year,
                 'section' => $section,
@@ -111,6 +127,7 @@ class ImportInterns
                     'student_number' => $data['student_number'],
                     'class_section_id' => $data['section']->id,
                     'school_year' => $data['school_year'],
+                    'gender' => $data['gender'],
                 ]);
                 $created[] = [$user, $password];
             }

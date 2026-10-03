@@ -25,7 +25,7 @@ beforeEach(function () {
 });
 
 it('imports a valid spreadsheet and reports the count', function () {
-    $file = uploadFromRows([ImportColumns::INTERNS, ['Ana', '', 'Cruz', 'ana@example.com', '0917', '22-0001', 'SBIT-4C', '']]);
+    $file = uploadFromRows([ImportColumns::INTERNS, ['Ana', '', 'Cruz', 'ana@example.com', '0917', 'Male', '22-0001', 'SBIT-4C', '']]);
 
     $this->actingAs($this->admin)->post(route('admin.imports.store', 'interns'), ['file' => $file])
         ->assertRedirect(route('admin.imports.index'))->assertSessionHas('success')->assertSessionHas('import_result.created', 1);
@@ -35,7 +35,7 @@ it('imports a valid spreadsheet and reports the count', function () {
 });
 
 it('shows row errors and creates nothing on a bad file', function () {
-    $file = uploadFromRows([ImportColumns::INTERNS, ['Ana', '', 'Cruz', 'not-an-email', '', '22-0001', 'SBIT-4C', '']]);
+    $file = uploadFromRows([ImportColumns::INTERNS, ['Ana', '', 'Cruz', 'not-an-email', '', 'Male', '22-0001', 'SBIT-4C', '']]);
 
     $this->actingAs($this->admin)->post(route('admin.imports.store', 'interns'), ['file' => $file])
         ->assertRedirect(route('admin.imports.index'))->assertSessionHas('error');
@@ -48,4 +48,17 @@ it('rejects non-spreadsheet uploads and unknown types', function () {
     $this->actingAs($this->admin)->post(route('admin.imports.store', 'interns'), ['file' => UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')])
         ->assertSessionHasErrors('file');
     $this->actingAs($this->admin)->post(route('admin.imports.store', 'payroll'), ['file' => uploadFromRows([['a']])])->assertNotFound();
+});
+
+it('rejects a sheet over the row cap before importing anything', function () {
+    $rows = [ImportColumns::INTERNS];
+    for ($i = 1; $i <= 501; $i++) {
+        $rows[] = ['Ana', '', 'Cruz', "ana{$i}@example.com", '', 'Male', "22-{$i}", 'SBIT-4C', ''];
+    }
+
+    $this->actingAs($this->admin)->post(route('admin.imports.store', 'interns'), ['file' => uploadFromRows($rows)])
+        ->assertRedirect(route('admin.imports.index'))
+        ->assertSessionHas('error', 'This file has 501 rows; imports are limited to 500 rows per upload. Split the file and try again.');
+
+    expect(User::where('first_name', 'Ana')->exists())->toBeFalse();
 });

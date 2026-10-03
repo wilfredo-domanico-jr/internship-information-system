@@ -8,6 +8,7 @@ use App\Models\ClassAdviserLog;
 use App\Models\ClassSection;
 use App\Models\User;
 use App\Services\JoinCodeGenerator;
+use App\Support\ImportColumns;
 use App\Support\ImportResult;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,10 @@ class ImportClasses
 
         foreach ($rows as $row) {
             $rowNo = (int) ($row['_row'] ?? 0);
+            if (ImportColumns::isExampleRow('classes', $row)) {
+                $result->addError($rowNo, "This is the template's example row; delete it before importing.");
+            }
+
             $data = [
                 'course_code' => Str::upper(trim((string) ($row['course_code'] ?? ''))),
                 'subject' => trim((string) ($row['subject'] ?? '')),
@@ -41,6 +46,11 @@ class ImportClasses
             foreach (['course_code' => 'course code', 'subject' => 'subject', 'section' => 'section', 'school_year' => 'school year'] as $key => $label) {
                 if ($data[$key] === '') {
                     $result->addError($rowNo, "The {$label} is required.");
+                }
+            }
+            foreach (['course_code' => ['course code', 30], 'section' => ['section', 50], 'subject' => ['subject', 255], 'school_year' => ['school year', 20]] as $key => [$label, $max]) {
+                if (mb_strlen($data[$key]) > $max) {
+                    $result->addError($rowNo, "The {$label} may not be longer than {$max} characters.");
                 }
             }
             if ($data['school_year'] !== '' && ! preg_match('/^\d{4}-\d{4}$/', $data['school_year'])) {

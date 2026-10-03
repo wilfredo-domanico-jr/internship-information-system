@@ -5,6 +5,7 @@ use App\Enums\ClassStatus;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassSection;
 use App\Models\User;
+use App\Support\ImportColumns;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -68,3 +69,23 @@ it('accepts the supported time formats and stores H:i:s', function (string $inpu
     expect($result->failed())->toBeFalse()
         ->and(ClassSection::firstOrFail()->starts_at)->toBe($stored);
 })->with([['08:00', '08:00:00'], ['8:00 AM', '08:00:00'], ['13:00:00', '13:00:00'], ['1:05pm', '13:05:00']]);
+
+it('rejects over-long class fields', function () {
+    $result = app(ImportClasses::class)(collect([
+        classRow(['course_code' => str_repeat('A', 31), 'section' => str_repeat('B', 51), 'subject' => str_repeat('c', 256), 'school_year' => '2025-2026-2027-2028-29']),
+    ]));
+
+    expect($result->failed())->toBeTrue()
+        ->and(implode(' ', $result->errors[2]))->toContain('course code')->toContain('section')->toContain('subject')->toContain('school year')
+        ->and(ClassSection::count())->toBe(0);
+});
+
+it('rejects the untouched template example row', function () {
+    $row = array_combine(ImportColumns::CLASSES, ImportColumns::EXAMPLES['classes']) + ['_row' => 2];
+
+    $result = app(ImportClasses::class)(collect([$row]));
+
+    expect($result->failed())->toBeTrue()
+        ->and(implode(' ', $result->errors[2]))->toContain("template's example row")
+        ->and(ClassSection::count())->toBe(0);
+});

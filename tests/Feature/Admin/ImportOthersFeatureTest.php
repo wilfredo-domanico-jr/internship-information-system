@@ -49,7 +49,7 @@ it('does not mention credential emails when classes are imported', function () {
     $row[7] = '';
     $this->actingAs($this->admin)->post(route('admin.imports.store', 'classes'), ['file' => uploadRows([ImportColumns::CLASSES, $row])]);
 
-    expect(session('success'))->toBe('1 classes imported.');
+    expect(session('success'))->toBe('1 class imported.');
 });
 
 it('flashes an error instead of a 500 for a corrupt spreadsheet', function () {

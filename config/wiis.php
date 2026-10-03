@@ -50,6 +50,10 @@ return [
         'max_avatar_kb' => 1024,
     ],
 
+    'imports' => [
+        'max_rows' => 500,
+    ],
+
     // Shows one-click demo sign-in buttons on the login page. Never enable in production.
     'demo_mode' => (bool) env('DEMO_MODE', false),
 

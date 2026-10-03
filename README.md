@@ -28,7 +28,9 @@ company), institution branding and support contacts live in `config/wiis.php`.
 Admin → Imports bulk-creates interns, advisers and classes from Excel.
 
 - Download the template for the import type, and add one row per record.
-- Section names must match an active class. Course codes and section names are upper-cased on import.
+- Intern columns: first_name, middle_name, last_name, email, phone, gender, student_number, section, school_year.
+- Section names must match an active class (add school_year to choose between classes sharing a section name).
+- Uploads are limited to 500 rows, and the template's example row must be deleted before importing. Course codes and section names are upper-cased on import.
 - Imports are all-or-nothing: if any row is invalid, nothing is saved and the errors are listed.
 - Imported users receive a temporary password by email and should change it after first sign-in.
 - Credential emails are sent through the queue. `composer dev` runs a worker; otherwise run `php artisan queue:work`.

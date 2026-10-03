@@ -2,11 +2,12 @@
     <x-page-header title="Excel imports" subtitle="Download a template, fill one row per record, then upload it. Imports are all-or-nothing: if any row has an error, nothing is created." />
 
     @if ($result)
-        <x-card :title="$result['errors'] ? 'Import failed' : 'Import complete'" class="{{ $result['errors'] ? 'border-rose-200 dark:border-rose-900' : 'border-emerald-200 dark:border-emerald-900' }}">
+        <x-card :title="$result['errors'] ? 'Import failed' : 'Import complete'" :class="$result['errors'] ? 'border-rose-200 dark:border-rose-900' : 'border-emerald-200 dark:border-emerald-900'">
             @if ($result['errors'])
                 <p class="text-sm text-stone-600 dark:text-stone-400">Fix the rows below and upload the file again. No records were created.</p>
                 <ul class="mt-3 max-h-72 list-inside list-disc space-y-1 overflow-y-auto text-sm text-rose-700 dark:text-rose-300">
-                    @foreach ($result['errors'] as $line)<li>{{ $line }}</li>@endforeach
+                    @foreach (array_slice($result['errors'], 0, 100) as $line)<li>{{ $line }}</li>@endforeach
+                    @if (count($result['errors']) > 100)<li class="list-none font-medium">… and {{ count($result['errors']) - 100 }} more rows have errors.</li>@endif
                 </ul>
             @else
                 <p class="text-sm">{{ $result['created'] }} record(s) created. Credential emails are being sent in the background.</p>
