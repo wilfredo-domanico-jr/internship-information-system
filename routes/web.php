@@ -147,6 +147,10 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('internship', [Intern\InternshipController::class, 'show'])->name('internship.show');
         Route::post('internship/join', [Intern\InternshipController::class, 'join'])->name('internship.join');
         Route::post('internship/leave', [Intern\InternshipController::class, 'leave'])->name('internship.leave');
+        Route::get('requests', [Intern\DocumentRequestController::class, 'index'])->name('requests.index');
+        Route::post('requests', [Intern\DocumentRequestController::class, 'store'])->name('requests.store');
+        Route::put('requests/{documentRequest}', [Intern\DocumentRequestController::class, 'update'])->name('requests.update');
+        Route::delete('requests/{documentRequest}', [Intern\DocumentRequestController::class, 'destroy'])->name('requests.destroy');
         Route::get('dtrs', [Intern\DtrController::class, 'index'])->name('dtrs.index');
         Route::post('dtrs', [Intern\DtrController::class, 'store'])->name('dtrs.store');
         Route::delete('dtrs/{dtr}', [Intern\DtrController::class, 'destroy'])->name('dtrs.destroy');
