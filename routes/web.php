@@ -120,6 +120,11 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');
         Route::post('class/join', [Intern\ClassController::class, 'join'])->name('class.join');
         Route::get('class/people', [Intern\ClassController::class, 'people'])->name('class.people');
+        Route::get('class/documents', [Intern\ClassController::class, 'documents'])->name('class.documents');
+        Route::get('folders/{folder}', [Intern\FolderController::class, 'show'])->name('folders.show');
+        Route::post('folders/{folder}/submissions', [Intern\SubmissionController::class, 'store'])->name('submissions.store');
+        Route::get('submissions', [Intern\SubmissionController::class, 'index'])->name('submissions.index');
+        Route::delete('submissions/{submission}', [Intern\SubmissionController::class, 'destroy'])->name('submissions.destroy');
         Route::post('announcements/{announcement}/comments', [Classroom\CommentController::class, 'store'])->name('comments.store');
         Route::delete('comments/{comment}', [Classroom\CommentController::class, 'destroy'])->name('comments.destroy');
     });

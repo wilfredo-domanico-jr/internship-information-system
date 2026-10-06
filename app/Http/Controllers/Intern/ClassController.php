@@ -59,6 +59,23 @@ class ClassController extends Controller
         ]);
     }
 
+    public function documents(Request $request): View|RedirectResponse
+    {
+        $user = $request->user();
+        $section = $this->currentSection($user);
+
+        if (! $section) {
+            return redirect()->route('intern.class.show');
+        }
+
+        return view('intern.class.documents', [
+            'class' => $section,
+            'folders' => $section->folders()
+                ->with(['submissions' => fn ($q) => $q->where('intern_id', $user->id)->latest()])
+                ->orderBy('name')->get(),
+        ]);
+    }
+
     /** The intern's active class with adviser and intern count loaded, or null. */
     private function currentSection(User $user): ?ClassSection
     {
