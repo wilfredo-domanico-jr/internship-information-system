@@ -8,7 +8,7 @@ document requests and completion certificates.
 The original plain-PHP version (2023) is preserved on the [`archive/v1`](../../tree/archive/v1) branch.
 This branch is a from-scratch redesign focused on clean architecture, security and a modern UI.
 
-> **Status:** Phases 1–2 complete — foundation (schema, auth, dashboards, notifications, profiles) and the admin portal.
+> **Status:** Phases 1–3 complete — foundation (schema, auth, dashboards, notifications, profiles), the admin portal and the classroom module.
 > See the [roadmap](#roadmap).
 
 ## Features
@@ -36,6 +36,14 @@ Admin → Imports bulk-creates interns, advisers and classes from Excel.
 - Credential emails are sent through the queue. `composer dev` runs a worker; otherwise run `php artisan queue:work`.
   With the database queue the password sits in the queued job until the worker sends the mail, so keep the worker running.
 - With `MAIL_MAILER=log` (the default in `.env.example`) the emails land in `storage/logs/laravel.log`.
+
+### Classroom
+
+- Advisers create classes, or claim imported ones with the class join code, and can leave a class later (the adviser history is kept).
+- The stream holds rich-text announcements with comments from the adviser and the class.
+- Folders collect PDF uploads from interns. Locking a folder marks later uploads as late, and the adviser approves or declines each upload with a note.
+- Shared resources are PDFs the adviser makes available to the whole class.
+- The People tab shows every intern's hours and prints as a class list.
 
 ## Tech stack
 
@@ -85,6 +93,8 @@ The demo seeder is for local development and demos only; never run it against a 
 - **Hours ledger** — only the `ApproveDtr` action (planned for Phase 4) will add hours, inside a transaction, on the pending→approved transition.
 - **Private files** — uploads live on the private disk and are streamed by `FileController` after a policy check.
 - **Business-rule refusals** — actions throw `DomainRuleViolation`, which renders as a flash error.
+- **Rich text** — cleaned by `App\Services\HtmlSanitizer` (HTML Purifier) on save and again on render.
+- **Classroom access** — decided by Policies built on `ClassSection::isAdvisedBy/enrolls/hasMember`.
 - **Notifications** — Laravel database notifications surface in the topbar bell.
 - **UI** — a small Blade component library (`resources/views/components`) on Tailwind 4 tokens, with dark mode.
 
@@ -99,7 +109,7 @@ vendor/bin/pint --test    # code style
 
 - [x] Phase 1 — Foundation: schema, auth, design system, dashboards, notifications, files, profiles, CI
 - [x] Phase 2 — Admin portal: user management, company approvals, partner companies, classes, departments, Excel imports, charts
-- [ ] Phase 3 — Classroom: classes, stream, folders, submissions
+- [x] Phase 3 — Classroom: classes, stream, folders, submissions
 - [ ] Phase 4 — Internship core: postings, applications, interviews, placements, DTRs, certificates
 - [ ] Phase 5 — COS partner-company track
 - [ ] Phase 6 — Public site, demo mode, polish

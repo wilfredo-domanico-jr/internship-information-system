@@ -4,15 +4,19 @@ namespace Database\Seeders;
 
 use App\Enums\ApprovalStatus;
 use App\Models\Announcement;
+use App\Models\AnnouncementComment;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassFolder;
+use App\Models\ClassResource;
 use App\Models\ClassSection;
+use App\Models\ClassSubmission;
 use App\Models\Company;
 use App\Models\Dtr;
 use App\Models\InternshipPosting;
 use App\Models\Placement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class DemoSeeder extends Seeder
 {
@@ -96,11 +100,38 @@ class DemoSeeder extends Seeder
         InternshipPosting::factory()->for($company)->create(['title' => 'Junior Web Developer Intern']);
         InternshipPosting::factory()->for($company)->create(['title' => 'IT Support Intern']);
 
-        ClassFolder::factory()->for($section)->create(['name' => 'Endorsement Letter']);
-        ClassFolder::factory()->for($section)->create(['name' => 'Weekly Report 1', 'is_locked' => true]);
+        Storage::disk('local')->put('classroom/demo/placeholder.pdf', $this->placeholderPdf());
 
-        Announcement::factory()->for($section)->for($adviser, 'author')->create([
+        $endorsement = ClassFolder::factory()->for($section)->create(['name' => 'Endorsement Letter']);
+        $weekly = ClassFolder::factory()->for($section)->create(['name' => 'Weekly Report 1', 'is_locked' => true]);
+
+        $announcement = Announcement::factory()->for($section)->for($adviser, 'author')->create([
             'body' => '<p>Welcome to Practicum! Upload your endorsement letter to the Documents tab before Friday.</p>',
         ]);
+        AnnouncementComment::factory()->for($announcement)->for($intern2, 'author')->create(['body' => 'Noted, thank you Ma’am!']);
+
+        ClassSubmission::factory()->for($endorsement, 'folder')->for($intern, 'intern')->approved()->create([
+            'title' => 'Endorsement letter – TechNova', 'file_path' => 'classroom/demo/placeholder.pdf', 'reviewed_by' => $adviser->id,
+        ]);
+        ClassSubmission::factory()->for($endorsement, 'folder')->for($intern2, 'intern')->create([
+            'title' => 'Endorsement letter', 'file_path' => 'classroom/demo/placeholder.pdf',
+        ]);
+        ClassSubmission::factory()->for($weekly, 'folder')->for($intern, 'intern')->create([
+            'title' => 'Week 1 report', 'file_path' => 'classroom/demo/placeholder.pdf', 'is_late' => true,
+        ]);
+
+        ClassResource::factory()->for($section)->for($adviser, 'uploader')->create([
+            'title' => 'OJT Guidelines and Templates', 'file_path' => 'classroom/demo/placeholder.pdf',
+        ]);
+    }
+
+    /** A one-page blank PDF so demo downloads open in a viewer. */
+    private function placeholderPdf(): string
+    {
+        return "%PDF-1.4\n"
+            ."1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
+            ."2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
+            ."3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj\n"
+            ."trailer << /Root 1 0 R >>\n%%EOF\n";
     }
 }

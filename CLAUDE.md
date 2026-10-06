@@ -41,6 +41,10 @@ Read it before starting any feature work; decisions recorded there are settled.
 - **Admin portal**: controllers in `App\Http\Controllers\Admin`, admin-wide access via the `role:admin` group
   (no per-record policy needed); imports are `App\Actions\Import*` returning `App\Support\ImportResult`,
   all-or-nothing; spreadsheet I/O in `App\Services\Excel`.
+- **Classroom**: adviser/intern controllers under their portals plus the shared `App\Http\Controllers\Classroom\CommentController`;
+  access is decided by Policies on each classroom model, all built on `ClassSection::isAdvisedBy|enrolls|hasMember`.
+  Rich text goes through `App\Services\HtmlSanitizer` on save and is rendered only via `<x-rich-text>`. Private PDFs are
+  served through `files.show` kinds `class-submission` and `class-resource`.
 - **Search**: search inputs go through `App\Support\Search::any|like` (escaped LIKE).
 - **Blade attributes**: dynamic text inside Blade component-tag attributes must be a bound expression
   (`:title="..."`), never `{{ }}` inside the attribute string.
