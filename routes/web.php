@@ -137,6 +137,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('internships', [Intern\PostingController::class, 'index'])->name('postings.index');
         Route::get('internships/{posting}', [Intern\PostingController::class, 'show'])->name('postings.show');
         Route::post('internships/{posting}/apply', [Intern\ApplicationController::class, 'store'])->name('applications.store');
+        Route::get('internship', [Intern\InternshipController::class, 'show'])->name('internship.show');
+        Route::post('internship/join', [Intern\InternshipController::class, 'join'])->name('internship.join');
+        Route::post('internship/leave', [Intern\InternshipController::class, 'leave'])->name('internship.leave');
         Route::get('applications', [Intern\ApplicationController::class, 'index'])->name('applications.index');
         Route::post('applications/{application}/cancel', [Intern\ApplicationController::class, 'cancel'])->name('applications.cancel');
         Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');

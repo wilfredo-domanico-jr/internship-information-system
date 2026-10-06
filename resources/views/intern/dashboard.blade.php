@@ -17,13 +17,16 @@
             @if ($placement)
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <p class="font-display text-lg font-semibold">{{ $placement->company->name }}</p>
+                        <p class="font-display text-lg font-semibold"><a href="{{ route('intern.internship.show') }}" class="hover:underline">{{ $placement->company->name }}</a></p>
                         <p class="text-sm text-stone-500">Since {{ $placement->started_at->format('M j, Y') }} · {{ $placement->hours_rendered }} h rendered here</p>
                     </div>
                     <x-badge color="green">Active</x-badge>
                 </div>
+                <x-button variant="secondary" :href="route('intern.internship.show')" icon="heroicon-o-arrow-right" class="mt-4">My internship</x-button>
             @else
-                <x-empty-state title="Not placed yet" description="Apply to an internship posting and join a company with its code once you are accepted." icon="heroicon-o-briefcase" class="py-8" />
+                <x-empty-state title="Not placed yet" description="Apply to an internship posting and join a company with its code once you are accepted." icon="heroicon-o-briefcase" class="py-8">
+                    <x-slot:action><x-button :href="route('intern.internship.show')" icon="heroicon-o-key">Join a company</x-button></x-slot:action>
+                </x-empty-state>
             @endif
         </x-card>
 
