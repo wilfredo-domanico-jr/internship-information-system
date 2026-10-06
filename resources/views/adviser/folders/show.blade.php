@@ -41,7 +41,37 @@
                     </td>
                     <td class="max-w-xs text-sm text-stone-600 dark:text-stone-300">{{ $submission->reviewer_note ?? '—' }}</td>
                     <td class="text-right">
-                        {{-- Task 11 adds the approve and decline controls here --}}
+                        @can('review', $submission)
+                            <div class="flex items-center justify-end gap-1"
+                                 x-data="{ name: 'decline-{{ $submission->id }}' }"
+                                 x-init="@if ($errors->has('note') && (string) old('submission_id') === (string) $submission->id) $nextTick(() => $dispatch('open-modal', name)) @endif">
+                                @if ($submission->status !== \App\Enums\SubmissionStatus::Approved)
+                                    <form method="POST" action="{{ route('adviser.submissions.approve', $submission) }}">
+                                        @csrf
+                                        <x-button variant="ghost" icon="heroicon-o-check" class="text-emerald-700 dark:text-emerald-300">Approve</x-button>
+                                    </form>
+                                @endif
+                                @if ($submission->status !== \App\Enums\SubmissionStatus::Declined)
+                                    <x-button type="button" variant="ghost" icon="heroicon-o-x-mark" class="text-rose-600" @click="$dispatch('open-modal', name)">Decline</x-button>
+                                @endif
+                            </div>
+                            <x-modal :name="'decline-'.$submission->id" title="Decline submission">
+                                <form method="POST" action="{{ route('adviser.submissions.decline', $submission) }}" class="space-y-4" x-data="{ name: 'decline-{{ $submission->id }}' }">
+                                    @csrf
+                                    <input type="hidden" name="submission_id" value="{{ $submission->id }}">
+                                    <p class="text-sm text-stone-600 dark:text-stone-300">Declining <span class="font-medium">{{ $submission->title }}</span> by {{ $submission->intern->name }}. The note is sent to the intern.</p>
+                                    <div>
+                                        <label for="note-{{ $submission->id }}" class="label">Reason <span class="text-rose-500">*</span></label>
+                                        <textarea id="note-{{ $submission->id }}" name="note" rows="3" required maxlength="500" class="input">{{ (string) old('submission_id') === (string) $submission->id ? old('note') : '' }}</textarea>
+                                        @if ((string) old('submission_id') === (string) $submission->id)<x-form.error name="note" />@endif
+                                    </div>
+                                    <div class="flex justify-end gap-2">
+                                        <x-button type="button" variant="secondary" @click="$dispatch('close-modal', name)">Cancel</x-button>
+                                        <x-button variant="danger" icon="heroicon-o-x-mark">Decline</x-button>
+                                    </div>
+                                </form>
+                            </x-modal>
+                        @endcan
                     </td>
                 </tr>
             @empty

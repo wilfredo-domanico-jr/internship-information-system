@@ -107,6 +107,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('folders/{folder}', [Adviser\FolderController::class, 'show'])->name('folders.show');
         Route::post('folders/{folder}/lock', [Adviser\FolderController::class, 'toggleLock'])->name('folders.lock');
         Route::delete('folders/{folder}', [Adviser\FolderController::class, 'destroy'])->name('folders.destroy');
+        Route::post('submissions/{submission}/approve', [Adviser\SubmissionReviewController::class, 'approve'])->name('submissions.approve');
+        Route::post('submissions/{submission}/decline', [Adviser\SubmissionReviewController::class, 'decline'])->name('submissions.decline');
         Route::post('announcements/{announcement}/comments', [Classroom\CommentController::class, 'store'])->name('comments.store');
         Route::delete('comments/{comment}', [Classroom\CommentController::class, 'destroy'])->name('comments.destroy');
     });
