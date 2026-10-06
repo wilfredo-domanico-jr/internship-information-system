@@ -33,6 +33,16 @@ class Placement extends Model
         return $this->ended_at === null;
     }
 
+    public function isInternOf(User $user): bool
+    {
+        return $this->intern_id === $user->id;
+    }
+
+    public function isManagedBy(User $user): bool
+    {
+        return $this->company->isManagedBy($user);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereNull('ended_at');

@@ -56,6 +56,24 @@ class Navigation
                 ['label' => 'My class', 'route' => 'intern.class.show', 'icon' => 'heroicon-o-rectangle-group',
                     'active' => ['intern.class.*', 'intern.comments.*', 'intern.folders.*']],
                 ['label' => 'My submissions', 'route' => 'intern.submissions.index', 'icon' => 'heroicon-o-document-check', 'active' => 'intern.submissions.*'],
+                ['label' => 'Internships', 'route' => 'intern.postings.index', 'icon' => 'heroicon-o-magnifying-glass', 'active' => 'intern.postings.*'],
+                ['label' => 'My applications', 'route' => 'intern.applications.index', 'icon' => 'heroicon-o-paper-airplane', 'active' => 'intern.applications.*'],
+                ['label' => 'My internship', 'route' => 'intern.internship.show', 'icon' => 'heroicon-o-briefcase', 'active' => 'intern.internship.*'],
+                ['label' => 'DTRs', 'route' => 'intern.dtrs.index', 'icon' => 'heroicon-o-clock', 'active' => 'intern.dtrs.*'],
+                ['label' => 'Requests', 'route' => 'intern.requests.index', 'icon' => 'heroicon-o-document-text', 'active' => 'intern.requests.*'],
+                ['label' => 'Certificates', 'route' => 'intern.certificates.index', 'icon' => 'heroicon-o-trophy', 'active' => 'intern.certificates.*'],
+            ];
+        }
+
+        if ($user->isCompany()) {
+            return [
+                ['label' => 'Postings', 'route' => 'company.postings.index', 'icon' => 'heroicon-o-megaphone', 'active' => ['company.postings.*', 'company.applications.*']],
+                ['label' => 'Interviews', 'route' => 'company.interviews.index', 'icon' => 'heroicon-o-calendar-days', 'active' => 'company.interviews.*'],
+                ['label' => 'Interns', 'route' => 'company.interns.index', 'icon' => 'heroicon-o-users', 'active' => ['company.interns.*', 'company.placements.*']],
+                ['label' => 'DTRs', 'route' => 'company.dtrs.index', 'icon' => 'heroicon-o-clipboard-document-check', 'active' => 'company.dtrs.*'],
+                ['label' => 'Requests', 'route' => 'company.requests.index', 'icon' => 'heroicon-o-document-text', 'active' => 'company.requests.*'],
+                ['label' => 'Certificates', 'route' => 'company.certificates.index', 'icon' => 'heroicon-o-trophy', 'active' => 'company.certificates.*'],
+                ['label' => 'History', 'route' => 'company.history.index', 'icon' => 'heroicon-o-archive-box', 'active' => 'company.history.*'],
             ];
         }
 

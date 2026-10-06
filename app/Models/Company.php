@@ -43,6 +43,12 @@ class Company extends Model
         return $this->approval_status === ApprovalStatus::Approved;
     }
 
+    /** True for the registered company's own login; partner companies have no login. */
+    public function isManagedBy(User $user): bool
+    {
+        return $this->user_id !== null && $this->user_id === $user->id;
+    }
+
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('approval_status', ApprovalStatus::Approved);

@@ -58,6 +58,11 @@ class User extends Authenticatable
 
     /* Role and status helpers */
 
+    public function hasActivePlacement(): bool
+    {
+        return $this->activePlacement()->exists();
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === Role::Admin;

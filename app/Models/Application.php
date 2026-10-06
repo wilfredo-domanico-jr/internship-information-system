@@ -24,6 +24,16 @@ class Application extends Model
         return ['status' => ApplicationStatus::class, 'decided_at' => 'datetime'];
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->intern_id === $user->id;
+    }
+
+    public function isManagedBy(User $user): bool
+    {
+        return $this->posting->company->isManagedBy($user);
+    }
+
     public function posting(): BelongsTo
     {
         return $this->belongsTo(InternshipPosting::class, 'internship_posting_id');

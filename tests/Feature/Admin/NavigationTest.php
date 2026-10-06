@@ -24,13 +24,24 @@ it('lists the adviser classroom section once its route exists', function () {
         ->toBe(['Dashboard', 'My classes', 'Notifications']);
 });
 
-it('lists the intern classroom sections once their routes exist', function () {
-    Route::get('/_t/intern-class', fn () => '')->name('intern.class.show');
-    Route::get('/_t/intern-submissions', fn () => '')->name('intern.submissions.index');
+it('lists the intern sections once their routes exist', function () {
+    foreach (['intern.class.show', 'intern.submissions.index', 'intern.postings.index', 'intern.applications.index', 'intern.internship.show', 'intern.dtrs.index', 'intern.requests.index', 'intern.certificates.index'] as $i => $name) {
+        Route::get("/_t/i{$i}", fn () => '')->name($name);
+    }
     Route::getRoutes()->refreshNameLookups();
 
     expect(collect(Navigation::for(User::factory()->intern()->create()))->pluck('label')->all())
-        ->toBe(['Dashboard', 'My class', 'My submissions', 'Notifications']);
+        ->toBe(['Dashboard', 'My class', 'My submissions', 'Internships', 'My applications', 'My internship', 'DTRs', 'Requests', 'Certificates', 'Notifications']);
+});
+
+it('lists the company sections once their routes exist', function () {
+    foreach (['company.postings.index', 'company.interviews.index', 'company.interns.index', 'company.dtrs.index', 'company.requests.index', 'company.certificates.index', 'company.history.index'] as $i => $name) {
+        Route::get("/_t/c{$i}", fn () => '')->name($name);
+    }
+    Route::getRoutes()->refreshNameLookups();
+
+    expect(collect(Navigation::for(User::factory()->company()->create()))->pluck('label')->all())
+        ->toBe(['Dashboard', 'Postings', 'Interviews', 'Interns', 'DTRs', 'Requests', 'Certificates', 'History', 'Notifications']);
 });
 
 it('does not show portal sections to roles that have none', function () {
