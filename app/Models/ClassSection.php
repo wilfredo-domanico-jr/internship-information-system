@@ -48,6 +48,23 @@ class ClassSection extends Model
         return $query->where('status', ClassStatus::Active);
     }
 
+    /* Membership */
+
+    public function isAdvisedBy(User $user): bool
+    {
+        return $this->adviser_id !== null && $this->adviser_id === $user->id;
+    }
+
+    public function enrolls(User $user): bool
+    {
+        return $user->isIntern() && $user->internProfile?->class_section_id === $this->id;
+    }
+
+    public function hasMember(User $user): bool
+    {
+        return $this->isAdvisedBy($user) || $this->enrolls($user);
+    }
+
     public function adviser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'adviser_id');

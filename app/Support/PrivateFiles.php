@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Models\ClassResource;
+use App\Models\ClassSubmission;
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +19,8 @@ class PrivateFiles
         return [
             'company-permit' => [Company::class, 'permit_path', 'viewDocuments'],
             'company-moa' => [Company::class, 'moa_path', 'viewDocuments'],
+            'class-submission' => [ClassSubmission::class, 'file_path', 'view'],
+            'class-resource' => [ClassResource::class, 'file_path', 'view'],
         ];
     }
 
