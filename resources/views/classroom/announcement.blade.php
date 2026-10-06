@@ -1,3 +1,7 @@
+@php
+    $portal = auth()->user()->isAdviser() ? 'adviser' : 'intern';
+    $mine = (string) old('announcement_id') === (string) $announcement->id;
+@endphp
 <x-card>
     <div class="flex items-start gap-3">
         <x-avatar :user="$announcement->author" size="sm" />
@@ -19,20 +23,38 @@
         @endcan
     </div>
 
-    @if ($announcement->comments->isNotEmpty())
-        <div class="mt-4 space-y-3 border-t border-stone-100 pt-4 dark:border-stone-800">
-            @foreach ($announcement->comments as $comment)
-                <div class="flex items-start gap-3">
-                    <x-avatar :user="$comment->author" size="xs" class="mt-0.5" />
-                    <div class="min-w-0 flex-1 text-sm">
-                        <span class="font-medium">{{ $comment->author->name }}</span>
-                        <span class="ml-2 text-xs text-stone-500">{{ $comment->created_at->diffForHumans() }}</span>
-                        <p class="mt-0.5 whitespace-pre-line text-stone-700 dark:text-stone-200">{{ $comment->body }}</p>
-                    </div>
-                    {{-- Task 8 adds the delete button here --}}
+    <div class="mt-4 space-y-3 border-t border-stone-100 pt-4 dark:border-stone-800">
+        @foreach ($announcement->comments as $comment)
+            <div class="flex items-start gap-3">
+                <x-avatar :user="$comment->author" size="xs" class="mt-0.5" />
+                <div class="min-w-0 flex-1 text-sm">
+                    <span class="font-medium">{{ $comment->author->name }}</span>
+                    <span class="ml-2 text-xs text-stone-500">{{ $comment->created_at->diffForHumans() }}</span>
+                    <p class="mt-0.5 whitespace-pre-line text-stone-700 dark:text-stone-200">{{ $comment->body }}</p>
                 </div>
-            @endforeach
-        </div>
-    @endif
-    {{-- Task 8 adds the comment form here --}}
+                @can('delete', $comment)
+                    <x-confirm-form :action="route($portal.'.comments.destroy', $comment)" method="DELETE" confirm="Remove this comment?">
+                        <button class="btn-ghost p-1 text-stone-400 hover:text-rose-600" aria-label="Remove comment"><x-heroicon-o-x-mark class="size-4" /></button>
+                    </x-confirm-form>
+                @endcan
+            </div>
+        @endforeach
+
+        @can('comment', $announcement)
+            <form method="POST" action="{{ route($portal.'.comments.store', $announcement) }}" class="flex items-start gap-3">
+                @csrf
+                <input type="hidden" name="announcement_id" value="{{ $announcement->id }}">
+                <x-avatar :user="auth()->user()" size="xs" class="mt-2" />
+                <div class="flex-1">
+                    <label for="comment-{{ $announcement->id }}" class="sr-only">Add a comment</label>
+                    <div class="flex items-start gap-2">
+                        <textarea id="comment-{{ $announcement->id }}" name="body" rows="1" placeholder="Add a class comment…" required maxlength="1000"
+                                  class="input py-2 {{ $mine && $errors->has('body') ? 'input-error' : '' }}">{{ $mine ? old('body') : '' }}</textarea>
+                        <button class="btn-primary px-3" aria-label="Post comment"><x-heroicon-o-paper-airplane class="size-4" /></button>
+                    </div>
+                    @if ($mine)<x-form.error name="body" />@endif
+                </div>
+            </form>
+        @endcan
+    </div>
 </x-card>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\RegisterCompanyController;
 use App\Http\Controllers\Auth\RegisterInternController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AvatarController;
+use App\Http\Controllers\Classroom;
 use App\Http\Controllers\Company;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\FileController;
@@ -101,6 +102,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::delete('announcements/{announcement}', [Adviser\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('classes/{classSection}/people', [Adviser\ClassSectionController::class, 'people'])->name('classes.people');
         Route::get('classes/{classSection}/print', [Adviser\ClassSectionController::class, 'print'])->name('classes.print');
+        Route::post('announcements/{announcement}/comments', [Classroom\CommentController::class, 'store'])->name('comments.store');
+        Route::delete('comments/{comment}', [Classroom\CommentController::class, 'destroy'])->name('comments.destroy');
     });
 
     Route::prefix('company')->name('company.')->middleware('role:company')->group(function () {
@@ -112,5 +115,7 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');
         Route::post('class/join', [Intern\ClassController::class, 'join'])->name('class.join');
         Route::get('class/people', [Intern\ClassController::class, 'people'])->name('class.people');
+        Route::post('announcements/{announcement}/comments', [Classroom\CommentController::class, 'store'])->name('comments.store');
+        Route::delete('comments/{comment}', [Classroom\CommentController::class, 'destroy'])->name('comments.destroy');
     });
 });
