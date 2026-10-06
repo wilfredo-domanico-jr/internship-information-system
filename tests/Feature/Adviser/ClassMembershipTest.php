@@ -1,7 +1,13 @@
 <?php
 
+use App\Models\Announcement;
+use App\Models\ClassFolder;
+use App\Models\ClassResource;
 use App\Models\ClassSection;
+use App\Models\ClassSubmission;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(fn () => $this->adviser = User::factory()->adviser()->create());
 
@@ -39,4 +45,21 @@ it('cannot leave someone else’s class', function () {
     $section = ClassSection::factory()->create();
 
     $this->actingAs($this->adviser)->post(route('adviser.classes.leave', $section))->assertForbidden();
+});
+
+it('forbids a former adviser from posting, creating folders, uploading or reviewing', function () {
+    Storage::fake('local');
+    $section = ClassSection::factory()->for($this->adviser, 'adviser')->create();
+    $folder = ClassFolder::factory()->for($section)->create();
+    $submission = ClassSubmission::factory()->for($folder, 'folder')->create();
+    $this->actingAs($this->adviser)->post(route('adviser.classes.leave', $section))->assertRedirect();
+
+    $this->actingAs($this->adviser)->post(route('adviser.announcements.store', $section), ['body' => '<p>Hi</p>'])->assertForbidden();
+    $this->actingAs($this->adviser)->post(route('adviser.folders.store', $section), ['name' => 'New folder'])->assertForbidden();
+    $this->actingAs($this->adviser)->post(route('adviser.folders.lock', $folder))->assertForbidden();
+    $this->actingAs($this->adviser)->post(route('adviser.resources.store', $section), ['title' => 'Guide', 'file' => UploadedFile::fake()->create('g.pdf', 10, 'application/pdf')])->assertForbidden();
+    $this->actingAs($this->adviser)->post(route('adviser.submissions.approve', $submission))->assertForbidden();
+
+    expect(Announcement::count())->toBe(0)->and(ClassFolder::count())->toBe(1)->and($folder->refresh()->is_locked)->toBeFalse()
+        ->and(ClassResource::count())->toBe(0)->and($submission->refresh()->status->value)->toBe('pending');
 });

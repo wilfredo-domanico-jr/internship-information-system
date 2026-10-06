@@ -107,3 +107,15 @@ it('lets an intern whose class was archived join a new one', function () {
 
     expect($intern->internProfile->refresh()->class_section_id)->toBe($new->id);
 });
+
+it('lets only one of two advisers claim the same class', function () {
+    $first = User::factory()->adviser()->create();
+    $second = User::factory()->adviser()->create();
+    $section = ClassSection::factory()->unassigned()->create(['join_code' => 'RACE0001']);
+
+    app(ClaimClass::class)('RACE0001', $first);
+    expect(fn () => app(ClaimClass::class)('RACE0001', $second))->toThrow(DomainRuleViolation::class, 'already has an adviser');
+
+    expect($section->refresh()->adviser_id)->toBe($first->id)
+        ->and(ClassAdviserLog::where('class_section_id', $section->id)->whereNull('left_at')->count())->toBe(1);
+});

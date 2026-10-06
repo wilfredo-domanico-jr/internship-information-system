@@ -28,8 +28,22 @@ it('lets the adviser comment and rejects blank comments', function () {
     $this->actingAs($this->adviser)->post(route('adviser.comments.store', $this->announcement), ['body' => 'Reminder: Friday!'])->assertRedirect();
     expect(AnnouncementComment::count())->toBe(1);
 
-    $this->actingAs($this->adviser)->post(route('adviser.comments.store', $this->announcement), ['body' => '   '])->assertSessionHasErrors('body');
-    $this->actingAs($this->intern)->post(route('intern.comments.store', $this->announcement), ['body' => str_repeat('x', 1001)])->assertSessionHasErrors('body');
+    $this->actingAs($this->adviser)->post(route('adviser.comments.store', $this->announcement), ['body' => '   '])->assertSessionHasErrors('body', null, 'comment');
+    $this->actingAs($this->intern)->post(route('intern.comments.store', $this->announcement), ['body' => str_repeat('x', 1001)])->assertSessionHasErrors('body', null, 'comment');
+});
+
+it('shows a failed comment error at the comment box, not the announcement composer', function () {
+    $this->actingAs($this->adviser)->from(route('adviser.classes.show', $this->section))
+        ->post(route('adviser.comments.store', $this->announcement), ['announcement_id' => $this->announcement->id, 'body' => '   '])
+        ->assertRedirect(route('adviser.classes.show', $this->section));
+
+    $html = $this->actingAs($this->adviser)->get(route('adviser.classes.show', $this->section))->assertOk()->getContent();
+    expect($html)->toContain('The body field is required.')->and(substr_count($html, 'input-error'))->toBe(1)->and($html)->not->toContain('Write something before posting.');
+
+    $this->actingAs($this->intern)->from(route('intern.class.show'))
+        ->post(route('intern.comments.store', $this->announcement), ['announcement_id' => $this->announcement->id, 'body' => '   '])
+        ->assertRedirect(route('intern.class.show'));
+    $this->actingAs($this->intern)->get(route('intern.class.show'))->assertOk()->assertSee('The body field is required.');
 });
 
 it('forbids outsiders', function () {

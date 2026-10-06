@@ -29,10 +29,15 @@ class ClaimClass
         }
 
         return DB::transaction(function () use ($section, $adviser) {
-            $section->update(['adviser_id' => $adviser->id]);
+            $claimed = ClassSection::query()->whereKey($section->id)->whereNull('adviser_id')->active()->update(['adviser_id' => $adviser->id]);
+
+            if ($claimed === 0) {
+                throw new DomainRuleViolation("{$section->display_name} already has an adviser.");
+            }
+
             ClassAdviserLog::create(['class_section_id' => $section->id, 'adviser_id' => $adviser->id, 'joined_at' => now()]);
 
-            return $section;
+            return $section->refresh();
         });
     }
 }

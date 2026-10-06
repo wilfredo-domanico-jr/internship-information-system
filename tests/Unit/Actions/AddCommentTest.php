@@ -35,3 +35,30 @@ it('does not notify authors about their own comments', function () {
 
     Notification::assertNothingSent();
 });
+
+it('notifies the current adviser, not a predecessor who left', function () {
+    Notification::fake();
+    $section = ClassSection::factory()->create();
+    $former = $section->adviser;
+    $announcement = Announcement::factory()->for($section)->for($former, 'author')->create();
+    $next = User::factory()->adviser()->create();
+    $section->update(['adviser_id' => $next->id]);
+    $intern = User::factory()->intern()->create();
+
+    app(AddComment::class)($announcement->refresh(), $intern, 'Hello');
+
+    Notification::assertSentTo($next, AnnouncementCommented::class);
+    Notification::assertNotSentTo($former, AnnouncementCommented::class);
+});
+
+it('sends nothing when the class has no adviser', function () {
+    Notification::fake();
+    $section = ClassSection::factory()->create();
+    $announcement = Announcement::factory()->for($section)->for($section->adviser, 'author')->create();
+    $section->update(['adviser_id' => null]);
+    $intern = User::factory()->intern()->create();
+
+    app(AddComment::class)($announcement->refresh(), $intern, 'Hello');
+
+    Notification::assertNothingSent();
+});

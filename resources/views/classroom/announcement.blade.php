@@ -49,10 +49,10 @@
                     <label for="comment-{{ $announcement->id }}" class="sr-only">Add a comment</label>
                     <div class="flex items-start gap-2">
                         <textarea id="comment-{{ $announcement->id }}" name="body" rows="1" placeholder="Add a class comment…" required maxlength="1000"
-                                  class="input py-2 {{ $mine && $errors->has('body') ? 'input-error' : '' }}">{{ $mine ? old('body') : '' }}</textarea>
+                                  class="input py-2 {{ $mine && $errors->comment->has('body') ? 'input-error' : '' }}">{{ $mine ? old('body') : '' }}</textarea>
                         <button class="btn-primary px-3" aria-label="Post comment"><x-heroicon-o-paper-airplane class="size-4" /></button>
                     </div>
-                    @if ($mine)<x-form.error name="body" />@endif
+                    @if ($mine && $errors->comment->has('body'))<p class="mt-1.5 text-sm text-rose-600 dark:text-rose-400">{{ $errors->comment->first('body') }}</p>@endif
                 </div>
             </form>
         @endcan

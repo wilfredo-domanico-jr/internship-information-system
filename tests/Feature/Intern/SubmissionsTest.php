@@ -46,7 +46,7 @@ it('uploads a PDF, notifies the adviser and marks late uploads', function () {
     expect(ClassSubmission::where('title', 'Late one')->firstOrFail()->is_late)->toBeTrue();
 
     $this->actingAs($this->intern)->get(route('intern.folders.show', $this->folder))
-        ->assertSee('My endorsement letter')->assertSee('Late one')->assertSee('Late')->assertSee(route('files.show', ['class-submission', $submission->id]));
+        ->assertSee('My endorsement letter')->assertSee('Late one')->assertSee('data-color="rose"', false)->assertSee(route('files.show', ['class-submission', $submission->id]));
 });
 
 it('rejects non-PDF, oversized and untitled uploads', function () {
@@ -84,6 +84,16 @@ it('lets the intern withdraw a pending submission but not a reviewed one', funct
 
     expect(ClassSubmission::whereKey($pending->id)->exists())->toBeFalse();
     Storage::disk('local')->assertMissing('classroom/x/mine.pdf');
+});
+
+it('does not link folders of a class the intern has left', function () {
+    $old = ClassSection::factory()->archived()->create();
+    $oldFolder = ClassFolder::factory()->for($old)->create(['name' => 'Legacy Folder']);
+    ClassSubmission::factory()->for($oldFolder, 'folder')->for($this->intern, 'intern')->create(['title' => 'Old doc']);
+    ClassSubmission::factory()->for($this->folder, 'folder')->for($this->intern, 'intern')->create(['title' => 'Current doc']);
+
+    $this->actingAs($this->intern)->get(route('intern.submissions.index'))
+        ->assertOk()->assertSee('Legacy Folder')->assertDontSee(route('intern.folders.show', $oldFolder))->assertSee(route('intern.folders.show', $this->folder));
 });
 
 it('lists all of the intern’s submissions with folder, status and notes', function () {

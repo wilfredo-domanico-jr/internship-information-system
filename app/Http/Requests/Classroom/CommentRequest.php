@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CommentRequest extends FormRequest
 {
+    protected $errorBag = 'comment';
+
     public function authorize(): bool
     {
         return $this->user()->can('comment', $this->route('announcement'));

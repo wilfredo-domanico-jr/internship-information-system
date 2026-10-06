@@ -37,6 +37,7 @@ it('seeds a coherent demo dataset', function () {
         ->and(ClassResource::count())->toBe(1)
         ->and(AnnouncementComment::count())->toBe(1);
 
-    Storage::disk('local')->assertExists(ClassSubmission::firstOrFail()->file_path);
-    Storage::disk('local')->assertExists(ClassResource::firstOrFail()->file_path);
+    $paths = ClassSubmission::pluck('file_path')->merge(ClassResource::pluck('file_path'));
+    expect($paths)->toHaveCount(4)->and($paths->unique())->toHaveCount(4);
+    $paths->each(fn (string $path) => Storage::disk('local')->assertExists($path));
 });

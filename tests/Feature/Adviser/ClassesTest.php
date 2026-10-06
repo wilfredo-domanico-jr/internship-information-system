@@ -14,7 +14,7 @@ it('lists only the active classes the adviser advises', function () {
     User::factory()->intern()->count(2)->create()->each(fn ($u) => $u->internProfile()->update(['class_section_id' => $mine->id]));
 
     $this->actingAs($this->adviser)->get(route('adviser.classes.index'))
-        ->assertOk()->assertSee('CC101 · SBIT-4C')->assertSee('MINE0001')->assertSee('2 interns')
+        ->assertOk()->assertSee('CC101 · SBIT-4C')->assertSee('MINE0001')->assertSee('Interns')
         ->assertDontSee('XX999')->assertDontSee('OLD111');
 });
 

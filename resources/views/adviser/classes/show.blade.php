@@ -4,7 +4,8 @@
     <div class="grid gap-6 lg:grid-cols-3">
         <div class="space-y-4 lg:col-span-2">
             @can('manage', $class)
-                <x-card x-data="{ open: {{ $errors->has('body') ? 'true' : 'false' }} }">
+                @php $composerOpen = $errors->has('body'); @endphp
+                <x-card :x-data="'{ open: '.($composerOpen ? 'true' : 'false').' }'">
                     <button type="button" x-show="!open" @click="open = true; $nextTick(() => $el.parentElement.querySelector('trix-editor')?.focus())"
                             class="flex w-full items-center gap-3 text-left text-sm text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">
                         <x-avatar :user="auth()->user()" size="sm" /> Announce something to your class…

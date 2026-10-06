@@ -17,6 +17,7 @@ use App\Models\Placement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DemoSeeder extends Seeder
 {
@@ -100,8 +101,6 @@ class DemoSeeder extends Seeder
         InternshipPosting::factory()->for($company)->create(['title' => 'Junior Web Developer Intern']);
         InternshipPosting::factory()->for($company)->create(['title' => 'IT Support Intern']);
 
-        Storage::disk('local')->put('classroom/demo/placeholder.pdf', $this->placeholderPdf());
-
         $endorsement = ClassFolder::factory()->for($section)->create(['name' => 'Endorsement Letter']);
         $weekly = ClassFolder::factory()->for($section)->create(['name' => 'Weekly Report 1', 'is_locked' => true]);
 
@@ -111,27 +110,52 @@ class DemoSeeder extends Seeder
         AnnouncementComment::factory()->for($announcement)->for($intern2, 'author')->create(['body' => 'Noted, thank you Ma’am!']);
 
         ClassSubmission::factory()->for($endorsement, 'folder')->for($intern, 'intern')->approved()->create([
-            'title' => 'Endorsement letter – TechNova', 'file_path' => 'classroom/demo/placeholder.pdf', 'reviewed_by' => $adviser->id,
+            'title' => 'Endorsement letter – TechNova', 'file_path' => $this->demoPdf(), 'reviewed_by' => $adviser->id,
         ]);
         ClassSubmission::factory()->for($endorsement, 'folder')->for($intern2, 'intern')->create([
-            'title' => 'Endorsement letter', 'file_path' => 'classroom/demo/placeholder.pdf',
+            'title' => 'Endorsement letter', 'file_path' => $this->demoPdf(),
         ]);
         ClassSubmission::factory()->for($weekly, 'folder')->for($intern, 'intern')->create([
-            'title' => 'Week 1 report', 'file_path' => 'classroom/demo/placeholder.pdf', 'is_late' => true,
+            'title' => 'Week 1 report', 'file_path' => $this->demoPdf(), 'is_late' => true,
         ]);
 
         ClassResource::factory()->for($section)->for($adviser, 'uploader')->create([
-            'title' => 'OJT Guidelines and Templates', 'file_path' => 'classroom/demo/placeholder.pdf',
+            'title' => 'OJT Guidelines and Templates', 'file_path' => $this->demoPdf(),
         ]);
     }
 
-    /** A one-page blank PDF so demo downloads open in a viewer. */
+    /** Stores a fresh private copy of the placeholder PDF (one per record, so deleting one never breaks another). */
+    private function demoPdf(): string
+    {
+        $path = 'classroom/demo/'.Str::uuid().'.pdf';
+        Storage::disk('local')->put($path, $this->placeholderPdf());
+
+        return $path;
+    }
+
+    /** A valid one-page blank PDF (correct xref offsets) so demo downloads open in any viewer. */
     private function placeholderPdf(): string
     {
-        return "%PDF-1.4\n"
-            ."1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n"
-            ."2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n"
-            ."3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >> endobj\n"
-            ."trailer << /Root 1 0 R >>\n%%EOF\n";
+        $objects = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] >>',
+        ];
+        $pdf = "%PDF-1.4\n";
+        $offsets = [];
+
+        foreach ($objects as $i => $body) {
+            $offsets[] = strlen($pdf);
+            $pdf .= ($i + 1)." 0 obj\n{$body}\nendobj\n";
+        }
+
+        $xref = strlen($pdf);
+        $pdf .= "xref\n0 ".(count($objects) + 1)."\n0000000000 65535 f \n";
+
+        foreach ($offsets as $offset) {
+            $pdf .= sprintf("%010d 00000 n \n", $offset);
+        }
+
+        return $pdf."trailer\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF\n";
     }
 }

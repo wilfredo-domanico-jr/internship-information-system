@@ -13,8 +13,10 @@ class AddComment
     {
         $comment = $announcement->comments()->create(['author_id' => $author->id, 'body' => trim($body)]);
 
-        if (! $author->is($announcement->author)) {
-            $announcement->author->notify(new AnnouncementCommented($comment->load('author')));
+        $adviser = $announcement->classSection->adviser;
+
+        if ($adviser && ! $author->is($adviser)) {
+            $adviser->notify(new AnnouncementCommented($comment->load('author')));
         }
 
         return $comment;

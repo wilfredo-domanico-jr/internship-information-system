@@ -32,7 +32,7 @@
                                 <div class="rounded-xl bg-stone-50 p-2 dark:bg-stone-900"><dt class="text-xs text-stone-500">Folders</dt><dd class="font-semibold tabular-nums">{{ $class->folders_count }}</dd></div>
                                 <div class="rounded-xl bg-stone-50 p-2 dark:bg-stone-900"><dt class="text-xs text-stone-500">Posts</dt><dd class="font-semibold tabular-nums">{{ $class->announcements_count }}</dd></div>
                             </dl>
-                            <p class="mt-4 text-xs text-stone-500">{{ $class->intern_profiles_count }} interns · Join code <span class="font-mono font-semibold text-stone-800 dark:text-stone-100">{{ $class->join_code }}</span></p>
+                            <p class="mt-4 text-xs text-stone-500">Join code <span class="font-mono font-semibold text-stone-800 dark:text-stone-100">{{ $class->join_code }}</span></p>
                             <div class="mt-4 flex items-center gap-2">
                                 <x-button variant="secondary" :href="route('adviser.classes.edit', $class)" icon="heroicon-o-pencil-square">Edit</x-button>
                                 <x-confirm-form :action="route('adviser.classes.leave', $class)" :confirm="'Leave '.$class->display_name.'? Interns stay enrolled and another adviser can claim the class with its join code.'">

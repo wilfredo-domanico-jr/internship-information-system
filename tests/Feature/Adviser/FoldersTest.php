@@ -60,10 +60,12 @@ it('groups submissions by status and late on the folder page', function () {
 
     $page = fn (string $status) => $this->actingAs($this->adviser)->get(route('adviser.folders.show', [$folder, 'status' => $status]))->assertOk();
 
+    expect(substr_count($page('late')->getContent(), 'data-color="rose"'))->toBe(1);
+    expect(substr_count($page('approved')->getContent(), 'data-color="rose"'))->toBe(0);
     $page('pending')->assertSee('Pending doc')->assertSee('Late doc')->assertDontSee('Approved doc')->assertSee($pending->intern->name);
     $page('approved')->assertSee('Approved doc')->assertDontSee('Pending doc');
     $page('declined')->assertSee('Declined doc')->assertSee('Wrong file');
-    $page('late')->assertSee('Late doc')->assertDontSee('Pending doc')->assertSee('Late');
+    $page('late')->assertSee('Late doc')->assertDontSee('Pending doc');
     $this->actingAs($this->adviser)->get(route('adviser.folders.show', $folder))->assertSee('Pending doc')->assertSee(route('files.show', ['class-submission', $pending->id]));
     $this->actingAs($this->adviser)->get(route('adviser.folders.show', [$folder, 'status' => 'bogus']))->assertNotFound();
     $this->actingAs(User::factory()->adviser()->create())->get(route('adviser.folders.show', $folder))->assertForbidden();
