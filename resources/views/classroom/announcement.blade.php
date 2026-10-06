@@ -8,7 +8,15 @@
             </div>
             <x-rich-text :html="$announcement->body" class="mt-2" />
         </div>
-        {{-- Task 7 adds the edit/delete menu here --}}
+        @can('update', $announcement)
+            <x-dropdown width="w-44">
+                <x-slot:trigger><button type="button" class="btn-ghost -mr-2 p-1.5" aria-label="Announcement actions"><x-heroicon-o-ellipsis-vertical class="size-5" /></button></x-slot:trigger>
+                <x-dropdown.item :href="route('adviser.announcements.edit', $announcement)" icon="heroicon-o-pencil-square">Edit</x-dropdown.item>
+                <x-confirm-form :action="route('adviser.announcements.destroy', $announcement)" method="DELETE" confirm="Delete this announcement and its comments?">
+                    <button class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"><x-heroicon-o-trash class="size-4" /> Delete</button>
+                </x-confirm-form>
+            </x-dropdown>
+        @endcan
     </div>
 
     @if ($announcement->comments->isNotEmpty())

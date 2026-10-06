@@ -95,6 +95,10 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('classes/{classSection}/edit', [Adviser\ClassSectionController::class, 'edit'])->name('classes.edit');
         Route::put('classes/{classSection}', [Adviser\ClassSectionController::class, 'update'])->name('classes.update');
         Route::get('classes/{classSection}', [Adviser\ClassSectionController::class, 'show'])->name('classes.show');
+        Route::post('classes/{classSection}/announcements', [Adviser\AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('announcements/{announcement}/edit', [Adviser\AnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('announcements/{announcement}', [Adviser\AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('announcements/{announcement}', [Adviser\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('classes/{classSection}/people', [Adviser\ClassSectionController::class, 'people'])->name('classes.people');
         Route::get('classes/{classSection}/print', [Adviser\ClassSectionController::class, 'print'])->name('classes.print');
     });
