@@ -8,7 +8,7 @@ document requests and completion certificates.
 The original plain-PHP version (2023) is preserved on the [`archive/v1`](../../tree/archive/v1) branch.
 This branch is a from-scratch redesign focused on clean architecture, security and a modern UI.
 
-> **Status:** Phases 1–3 complete — foundation (schema, auth, dashboards, notifications, profiles), the admin portal and the classroom module.
+> **Status:** Phases 1–4 complete — foundation (schema, auth, dashboards, notifications, profiles), the admin portal, the classroom module and the internship flow.
 > See the [roadmap](#roadmap).
 
 ## Features
