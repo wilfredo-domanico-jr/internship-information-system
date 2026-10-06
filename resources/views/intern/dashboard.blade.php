@@ -29,11 +29,14 @@
 
         <x-card title="My class" class="lg:col-span-2">
             @if ($section)
-                <p class="font-display text-lg font-semibold">{{ $section->display_name }}</p>
+                <p class="font-display text-lg font-semibold"><a href="{{ route('intern.class.show') }}" class="hover:underline">{{ $section->display_name }}</a></p>
                 <p class="text-sm text-stone-500">{{ $section->subject }} · {{ $section->schedule_label }}</p>
                 <p class="mt-3 text-sm">Adviser: <span class="font-medium">{{ $section->adviser?->name ?? 'Not assigned yet' }}</span></p>
+                <x-button variant="secondary" :href="route('intern.class.show')" icon="heroicon-o-arrow-right" class="mt-4">Open class</x-button>
             @else
-                <x-empty-state title="No class joined" description="Ask your adviser for the class join code." icon="heroicon-o-rectangle-group" class="py-8" />
+                <x-empty-state title="No class joined" description="Ask your adviser for the class join code." icon="heroicon-o-rectangle-group" class="py-8">
+                    <x-slot:action><x-button :href="route('intern.class.show')" icon="heroicon-o-key">Join a class</x-button></x-slot:action>
+                </x-empty-state>
             @endif
         </x-card>
     </div>

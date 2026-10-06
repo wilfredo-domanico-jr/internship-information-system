@@ -1,12 +1,15 @@
 <?php
 
 use App\Actions\ClaimClass;
+use App\Actions\JoinClass;
 use App\Actions\LeaveClass;
 use App\Exceptions\DomainRuleViolation;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassSection;
 use App\Models\User;
+use App\Notifications\InternJoinedClass;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -64,4 +67,43 @@ it('refuses to leave a class you do not advise', function () {
 
     expect(fn () => app(LeaveClass::class)($section, User::factory()->adviser()->create()))->toThrow(DomainRuleViolation::class);
     expect($section->refresh()->adviser_id)->not->toBeNull();
+});
+
+it('enrols an intern by join code and tells the adviser', function () {
+    Notification::fake();
+    $section = ClassSection::factory()->create(['join_code' => 'SBIT4C26', 'school_year' => '2026-2027']);
+    $intern = User::factory()->intern()->create();
+
+    $joined = app(JoinClass::class)($intern, 'sbit4c26');
+
+    expect($joined->is($section))->toBeTrue()
+        ->and($intern->internProfile->refresh()->class_section_id)->toBe($section->id)
+        ->and($intern->internProfile->school_year)->toBe('2026-2027');
+    Notification::assertSentTo($section->adviser, InternJoinedClass::class, fn (InternJoinedClass $n) => $n->toArray($section->adviser)['url'] === route('adviser.classes.people', $section));
+});
+
+it('refuses a second active class, unknown codes and archived classes', function () {
+    $current = ClassSection::factory()->create(['join_code' => 'FIRST001']);
+    $other = ClassSection::factory()->create(['join_code' => 'OTHER001']);
+    ClassSection::factory()->archived()->create(['join_code' => 'ARCHIVED']);
+    $intern = User::factory()->intern()->create();
+    $intern->internProfile->update(['class_section_id' => $current->id]);
+
+    expect(fn () => app(JoinClass::class)($intern, 'OTHER001'))->toThrow(DomainRuleViolation::class, 'already enrolled');
+    expect($intern->internProfile->refresh()->class_section_id)->toBe($current->id);
+
+    $free = User::factory()->intern()->create();
+    expect(fn () => app(JoinClass::class)($free, 'NOPE0000'))->toThrow(DomainRuleViolation::class, 'No active class');
+    expect(fn () => app(JoinClass::class)($free, 'ARCHIVED'))->toThrow(DomainRuleViolation::class, 'No active class');
+});
+
+it('lets an intern whose class was archived join a new one', function () {
+    $old = ClassSection::factory()->archived()->create();
+    $new = ClassSection::factory()->create(['join_code' => 'NEWCLASS']);
+    $intern = User::factory()->intern()->create();
+    $intern->internProfile->update(['class_section_id' => $old->id]);
+
+    app(JoinClass::class)($intern, 'NEWCLASS');
+
+    expect($intern->internProfile->refresh()->class_section_id)->toBe($new->id);
 });

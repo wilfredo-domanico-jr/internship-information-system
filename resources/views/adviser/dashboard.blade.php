@@ -11,7 +11,7 @@
         @forelse ($classes as $class)
             <div class="flex items-center justify-between gap-4 border-b border-stone-100 px-5 py-4 last:border-0 dark:border-stone-800">
                 <div>
-                    <p class="font-semibold">{{ $class->display_name }}</p>
+                    <p class="font-semibold"><a href="{{ route('adviser.classes.show', $class) }}" class="hover:underline">{{ $class->display_name }}</a></p>
                     <p class="text-sm text-stone-500">{{ $class->subject }} · {{ $class->schedule_label }} · {{ $class->school_year }}</p>
                 </div>
                 <div class="text-right">

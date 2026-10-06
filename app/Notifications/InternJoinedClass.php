@@ -23,7 +23,7 @@ class InternJoinedClass extends Notification
         return [
             'title' => "New intern in {$this->section->display_name}",
             'body' => "{$this->intern->name} ({$this->intern->internProfile?->student_number}) joined your class.",
-            'url' => route('adviser.dashboard'),
+            'url' => route('adviser.classes.people', $this->section),
             'icon' => 'heroicon-o-academic-cap',
         ];
     }

@@ -1,7 +1,7 @@
 @props(['tabs' => []])
 <nav {{ $attributes->merge(['class' => 'flex gap-1 overflow-x-auto border-b border-stone-200 dark:border-stone-800']) }} aria-label="Tabs">
     @foreach ($tabs as $tab)
-        @php $active = request()->routeIs($tab['active'] ?? $tab['route']); @endphp
+        @php $active = request()->routeIs(...(array) ($tab['active'] ?? $tab['route'])); @endphp
         <a href="{{ route($tab['route'], $tab['params'] ?? []) }}"
            @class(['-mb-px flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition',
                    'border-brand-600 text-brand-700 dark:text-brand-300' => $active,

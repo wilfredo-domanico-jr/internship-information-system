@@ -105,5 +105,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
         Route::get('dashboard', Intern\DashboardController::class)->name('dashboard');
+        Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');
+        Route::post('class/join', [Intern\ClassController::class, 'join'])->name('class.join');
+        Route::get('class/people', [Intern\ClassController::class, 'people'])->name('class.people');
     });
 });
