@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "trix/dist/trix.css" layer(base);
 
 @source "../views";
 @source "../../app/View";
