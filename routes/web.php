@@ -128,6 +128,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
         Route::get('dashboard', Intern\DashboardController::class)->name('dashboard');
+        Route::get('internships', [Intern\PostingController::class, 'index'])->name('postings.index');
+        Route::get('internships/{posting}', [Intern\PostingController::class, 'show'])->name('postings.show');
+        Route::post('internships/{posting}/apply', [Intern\ApplicationController::class, 'store'])->name('applications.store');
         Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');
         Route::post('class/join', [Intern\ClassController::class, 'join'])->name('class.join');
         Route::get('class/people', [Intern\ClassController::class, 'people'])->name('class.people');
