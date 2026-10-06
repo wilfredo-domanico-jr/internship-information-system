@@ -134,6 +134,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::put('placements/{placement}/department', [Company\PlacementController::class, 'department'])->name('placements.department');
         Route::post('placements/{placement}/remove', [Company\PlacementController::class, 'remove'])->name('placements.remove');
         Route::get('history', Company\HistoryController::class)->name('history.index');
+        Route::get('dtrs', [Company\DtrController::class, 'index'])->name('dtrs.index');
+        Route::post('dtrs/{dtr}/approve', [Company\DtrController::class, 'approve'])->name('dtrs.approve');
+        Route::post('dtrs/{dtr}/disapprove', [Company\DtrController::class, 'disapprove'])->name('dtrs.disapprove');
     });
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
