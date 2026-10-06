@@ -43,4 +43,13 @@ class ApplicationController extends Controller
 
         return redirect()->route('company.postings.applicants', $application->posting)->with('success', "{$application->intern->name}'s application was declined.");
     }
+
+    public function accept(Application $application, DecideApplication $decide): RedirectResponse
+    {
+        Gate::authorize('decide', $application);
+
+        $decide($application, ApplicationStatus::Accepted);
+
+        return back()->with('success', "{$application->intern->name} was accepted and told to join with your company code.");
+    }
 }

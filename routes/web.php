@@ -127,6 +127,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('postings/{posting}/applicants', Company\ApplicantController::class)->name('postings.applicants');
         Route::get('applications/{application}', [Company\ApplicationController::class, 'show'])->name('applications.show');
         Route::post('applications/{application}/interview', [Company\ApplicationController::class, 'interview'])->name('applications.interview');
+        Route::get('interviews', Company\InterviewController::class)->name('interviews.index');
+        Route::post('applications/{application}/accept', [Company\ApplicationController::class, 'accept'])->name('applications.accept');
         Route::post('applications/{application}/decline', [Company\ApplicationController::class, 'decline'])->name('applications.decline');
     });
 
