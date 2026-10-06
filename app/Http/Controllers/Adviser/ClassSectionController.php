@@ -6,6 +6,7 @@ use App\Actions\ClaimClass;
 use App\Actions\CreateClassSection;
 use App\Actions\LeaveClass;
 use App\Actions\UpdateClassSection;
+use App\Enums\SubmissionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Adviser\ClassSectionRequest;
 use App\Http\Requests\Classroom\JoinClassRequest;
@@ -94,6 +95,18 @@ class ClassSectionController extends Controller
 
                     return $announcement;
                 }),
+        ]);
+    }
+
+    public function documents(ClassSection $classSection): View
+    {
+        Gate::authorize('view', $classSection);
+
+        return view('adviser.classes.documents', [
+            'class' => $classSection->loadCount('internProfiles'),
+            'folders' => $classSection->folders()
+                ->withCount(['submissions', 'submissions as pending_submissions_count' => fn ($q) => $q->where('status', SubmissionStatus::Pending)])
+                ->orderBy('name')->get(),
         ]);
     }
 

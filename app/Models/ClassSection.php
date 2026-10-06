@@ -80,6 +80,11 @@ class ClassSection extends Model
         return $this->hasManyThrough(User::class, InternProfile::class, 'class_section_id', 'id', 'id', 'user_id');
     }
 
+    public function submissions(): HasManyThrough
+    {
+        return $this->hasManyThrough(ClassSubmission::class, ClassFolder::class);
+    }
+
     public function folders(): HasMany
     {
         return $this->hasMany(ClassFolder::class);

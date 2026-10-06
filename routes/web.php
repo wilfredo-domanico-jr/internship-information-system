@@ -102,6 +102,11 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::delete('announcements/{announcement}', [Adviser\AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('classes/{classSection}/people', [Adviser\ClassSectionController::class, 'people'])->name('classes.people');
         Route::get('classes/{classSection}/print', [Adviser\ClassSectionController::class, 'print'])->name('classes.print');
+        Route::get('classes/{classSection}/documents', [Adviser\ClassSectionController::class, 'documents'])->name('classes.documents');
+        Route::post('classes/{classSection}/folders', [Adviser\FolderController::class, 'store'])->name('folders.store');
+        Route::get('folders/{folder}', [Adviser\FolderController::class, 'show'])->name('folders.show');
+        Route::post('folders/{folder}/lock', [Adviser\FolderController::class, 'toggleLock'])->name('folders.lock');
+        Route::delete('folders/{folder}', [Adviser\FolderController::class, 'destroy'])->name('folders.destroy');
         Route::post('announcements/{announcement}/comments', [Classroom\CommentController::class, 'store'])->name('comments.store');
         Route::delete('comments/{comment}', [Classroom\CommentController::class, 'destroy'])->name('comments.destroy');
     });
