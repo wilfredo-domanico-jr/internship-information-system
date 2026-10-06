@@ -73,6 +73,7 @@ class ClassController extends Controller
             'folders' => $section->folders()
                 ->with(['submissions' => fn ($q) => $q->where('intern_id', $user->id)->latest()])
                 ->orderBy('name')->get(),
+            'resources' => $section->resources()->with('uploader')->latest()->get(),
         ]);
     }
 

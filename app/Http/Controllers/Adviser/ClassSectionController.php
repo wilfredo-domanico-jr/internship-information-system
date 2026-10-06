@@ -13,6 +13,7 @@ use App\Http\Requests\Classroom\JoinClassRequest;
 use App\Models\Announcement;
 use App\Models\AnnouncementComment;
 use App\Models\ClassAdviserLog;
+use App\Models\ClassResource;
 use App\Models\ClassSection;
 use App\Models\InternProfile;
 use App\Services\OjtHoursService;
@@ -107,6 +108,8 @@ class ClassSectionController extends Controller
             'folders' => $classSection->folders()
                 ->withCount(['submissions', 'submissions as pending_submissions_count' => fn ($q) => $q->where('status', SubmissionStatus::Pending)])
                 ->orderBy('name')->get(),
+            'resources' => $classSection->resources()->with('uploader')->latest()->get()
+                ->each(fn (ClassResource $resource) => $resource->setRelation('classSection', $classSection)),
         ]);
     }
 

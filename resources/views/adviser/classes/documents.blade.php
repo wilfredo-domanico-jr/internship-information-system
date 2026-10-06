@@ -33,7 +33,44 @@
                 @endforelse
             </x-card>
 
-            {{-- Task 12 adds the shared resources card here --}}
+            <x-card title="Shared resources" subtitle="Templates, guidelines and other PDFs every intern can download." :padding="false">
+                @can('manage', $class)
+                    <x-slot:actions>
+                        <x-button type="button" variant="secondary" icon="heroicon-o-arrow-up-tray" @click="$dispatch('open-modal', 'share-resource')">Share a PDF</x-button>
+                    </x-slot:actions>
+                @endcan
+                @forelse ($resources as $resource)
+                    <div class="flex items-center justify-between gap-3 border-b border-stone-100 px-5 py-3 last:border-0 dark:border-stone-800">
+                        <a href="{{ route('files.show', ['class-resource', $resource]) }}" target="_blank" class="flex min-w-0 items-center gap-3 hover:underline">
+                            <x-heroicon-o-document-text class="size-5 shrink-0 text-stone-400" />
+                            <span class="truncate font-medium">{{ $resource->title }}</span>
+                            <span class="hidden text-xs text-stone-500 sm:inline">{{ $resource->uploader->name }} · {{ $resource->created_at->format('M j, Y') }}</span>
+                        </a>
+                        @can('delete', $resource)
+                            <x-confirm-form :action="route('adviser.resources.destroy', $resource)" method="DELETE" :confirm="'Remove “'.$resource->title.'”?'">
+                                <button class="btn-ghost p-1.5 text-stone-400 hover:text-rose-600" aria-label="Remove resource"><x-heroicon-o-trash class="size-4" /></button>
+                            </x-confirm-form>
+                        @endcan
+                    </div>
+                @empty
+                    <x-empty-state title="No shared resources" description="Share templates or guidelines as PDFs." icon="heroicon-o-paper-clip" class="py-8" />
+                @endforelse
+            </x-card>
+
+            @can('manage', $class)
+                <x-modal name="share-resource" title="Share a PDF with the class">
+                    <form method="POST" action="{{ route('adviser.resources.store', $class) }}" enctype="multipart/form-data" class="space-y-4"
+                          x-init="@if ($errors->hasAny(['title', 'file'])) $nextTick(() => $dispatch('open-modal', 'share-resource')) @endif">
+                        @csrf
+                        <x-form.input name="title" label="Title" placeholder="OJT Guidelines" required maxlength="150" />
+                        <x-form.file name="file" label="PDF file" accept="application/pdf" required />
+                        <div class="flex justify-end gap-2">
+                            <x-button type="button" variant="secondary" @click="$dispatch('close-modal', 'share-resource')">Cancel</x-button>
+                            <x-button icon="heroicon-o-arrow-up-tray">Share</x-button>
+                        </div>
+                    </form>
+                </x-modal>
+            @endcan
         </div>
 
         <div class="space-y-4">

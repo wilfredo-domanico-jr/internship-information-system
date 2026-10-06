@@ -103,6 +103,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('classes/{classSection}/people', [Adviser\ClassSectionController::class, 'people'])->name('classes.people');
         Route::get('classes/{classSection}/print', [Adviser\ClassSectionController::class, 'print'])->name('classes.print');
         Route::get('classes/{classSection}/documents', [Adviser\ClassSectionController::class, 'documents'])->name('classes.documents');
+        Route::post('classes/{classSection}/resources', [Adviser\ResourceController::class, 'store'])->name('resources.store');
+        Route::delete('resources/{resource}', [Adviser\ResourceController::class, 'destroy'])->name('resources.destroy');
         Route::post('classes/{classSection}/folders', [Adviser\FolderController::class, 'store'])->name('folders.store');
         Route::get('folders/{folder}', [Adviser\FolderController::class, 'show'])->name('folders.show');
         Route::post('folders/{folder}/lock', [Adviser\FolderController::class, 'toggleLock'])->name('folders.lock');

@@ -26,7 +26,17 @@
                 @endforelse
             </x-card>
 
-            {{-- Task 12 adds the shared resources card here --}}
+            <x-card title="Shared resources" subtitle="PDFs your adviser shared with the class." :padding="false">
+                @forelse ($resources as $resource)
+                    <a href="{{ route('files.show', ['class-resource', $resource]) }}" target="_blank" class="flex items-center gap-3 border-b border-stone-100 px-5 py-3 last:border-0 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-900">
+                        <x-heroicon-o-document-text class="size-5 shrink-0 text-stone-400" />
+                        <span class="min-w-0 flex-1 truncate font-medium">{{ $resource->title }}</span>
+                        <span class="text-xs text-stone-500">{{ $resource->created_at->format('M j, Y') }}</span>
+                    </a>
+                @empty
+                    <x-empty-state title="No shared resources yet" icon="heroicon-o-paper-clip" class="py-8" />
+                @endforelse
+            </x-card>
         </div>
 
         <x-card title="How it works">
