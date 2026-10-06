@@ -41,3 +41,12 @@ it('accepts an applicant without placing them and tells them the company code', 
     $this->actingAs($this->user)->from(route('company.interviews.index'))->post(route('company.applications.accept', $application))->assertRedirect()->assertSessionHas('error');
     $this->actingAs(User::factory()->company()->create())->post(route('company.applications.accept', $application))->assertForbidden();
 });
+
+it('does not list for-interview applicants who are already placed elsewhere', function () {
+    $placed = User::factory()->intern()->create(['first_name' => 'Placed', 'last_name' => 'Elsewhere']);
+    Placement::factory()->for($placed, 'intern')->create();
+    $application = Application::factory()->for($this->posting, 'posting')->for($placed, 'intern')->forInterview()->create();
+    Interview::factory()->for($application)->create(['scheduled_on' => now()->addDay()->toDateString()]);
+
+    $this->actingAs($this->user)->get(route('company.interviews.index'))->assertOk()->assertDontSee('Placed Elsewhere');
+});

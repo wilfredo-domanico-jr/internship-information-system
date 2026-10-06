@@ -33,12 +33,13 @@ it('runs the whole internship lifecycle from application to certificate', functi
     // 4. intern joins by code
     $this->actingAs($intern)->post(route('intern.internship.join'), ['company_code' => $company->company_code])->assertSessionHas('success');
     $placement = $intern->activePlacement()->firstOrFail();
+    $placement->update(['started_at' => now()->subDays(120)->toDateString()]);
     $this->actingAs($companyUser)->get(route('company.interns.index'))->assertSee($intern->name);
 
     // 5. submits DTRs, 6. company approves, 7. hours reach the requirement
     $chunk = (int) ceil($hours->required() / 3);
     foreach (range(1, 3) as $i) {
-        $this->actingAs($intern)->post(route('intern.dtrs.store'), ['period_from' => now()->subDays(10 * $i + 5)->toDateString(), 'period_to' => now()->subDays(10 * $i)->toDateString(), 'hours' => $chunk, 'absences' => 0, 'file' => $pdf("dtr{$i}.pdf")])->assertSessionHas('success');
+        $this->actingAs($intern)->post(route('intern.dtrs.store'), ['period_from' => now()->subDays(30 * $i + 20)->toDateString(), 'period_to' => now()->subDays(30 * $i)->toDateString(), 'hours' => $chunk, 'absences' => 0, 'file' => $pdf("dtr{$i}.pdf")])->assertSessionHas('success');
     }
     foreach (Dtr::where('placement_id', $placement->id)->get() as $dtr) {
         $this->actingAs($companyUser)->post(route('company.dtrs.approve', $dtr))->assertSessionHas('success');

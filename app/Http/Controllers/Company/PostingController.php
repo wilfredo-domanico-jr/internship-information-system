@@ -21,7 +21,7 @@ class PostingController extends Controller
     public function index(Request $request): View
     {
         return view('company.postings.index', [
-            'postings' => $request->user()->company->postings()
+            'postings' => $request->user()->company->postings()->with('company.user')
                 ->withCount(['applications', 'applications as pending_applications_count' => fn ($q) => $q->where('status', ApplicationStatus::Pending)])
                 ->get(),
         ]);

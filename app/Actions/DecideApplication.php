@@ -21,6 +21,10 @@ class DecideApplication
             throw new DomainRuleViolation('This application has already been decided.');
         }
 
+        if ($decision === ApplicationStatus::Accepted && $application->intern->hasActivePlacement()) {
+            throw new DomainRuleViolation('This applicant is already placed with a company.');
+        }
+
         $reason = trim((string) $reason) ?: null;
 
         if ($decision === ApplicationStatus::Declined && $reason === null) {

@@ -23,6 +23,7 @@ class Placement extends Model
         return [
             'started_at' => 'date',
             'ended_at' => 'date',
+            'department_id' => 'integer',
             'hours_rendered' => 'integer',
             'absences' => 'integer',
         ];

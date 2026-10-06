@@ -18,6 +18,7 @@ class InterviewController extends Controller
 
         $base = Interview::query()
             ->whereHas('application', fn (Builder $a) => $a->where('status', ApplicationStatus::ForInterview)
+                ->whereDoesntHave('intern.activePlacement')
                 ->whereHas('posting', fn (Builder $p) => $p->where('company_id', $companyId)));
 
         return view('company.interviews.index', [

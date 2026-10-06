@@ -2,7 +2,7 @@
     <x-page-header title="Certificates" subtitle="Certificates of completion issued by the companies you interned with." />
 
     @if ($certificates->isEmpty())
-        <x-card><x-empty-state title="No certificates yet" :description="'A company can issue one once you have rendered '.config('wiis.hours.certificate_min').' hours with them.'" icon="heroicon-o-trophy" /></x-card>
+        <x-card><x-empty-state title="No certificates yet" :description="'A company can issue one once you have rendered '.$minimum.' hours with them.'" icon="heroicon-o-trophy" /></x-card>
     @else
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             @foreach ($certificates as $certificate)

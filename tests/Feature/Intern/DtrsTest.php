@@ -62,3 +62,14 @@ it('refuses submissions without a placement and withdraws pending DTRs only', fu
     $this->actingAs($this->intern)->delete(route('intern.dtrs.destroy', $pending))->assertRedirect(route('intern.dtrs.index'))->assertSessionHas('success');
     Storage::disk('local')->assertMissing('dtrs/x/p.pdf');
 });
+
+it('rejects impossible hours and periods before the placement began', function () {
+    $file = fn () => UploadedFile::fake()->create('dtr.pdf', 10, 'application/pdf');
+    $day = now()->subDay()->toDateString();
+
+    $this->actingAs($this->intern)->post(route('intern.dtrs.store'), [...$this->data, 'period_from' => $day, 'period_to' => $day, 'hours' => 25, 'file' => $file()])
+        ->assertSessionHasErrors('hours');
+    $this->actingAs($this->intern)->post(route('intern.dtrs.store'), [...$this->data, 'period_from' => $this->placement->started_at->subDays(3)->toDateString(), 'period_to' => $day, 'hours' => 8, 'file' => $file()])
+        ->assertSessionHasErrors('period_from');
+    expect(Dtr::count())->toBe(0);
+});

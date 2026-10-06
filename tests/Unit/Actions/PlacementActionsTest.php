@@ -2,6 +2,7 @@
 
 use App\Actions\LeaveCompany;
 use App\Actions\PlaceIntern;
+use App\Enums\AccountStatus;
 use App\Exceptions\DomainRuleViolation;
 use App\Models\Application;
 use App\Models\Company;
@@ -63,3 +64,30 @@ it('leaving ends the active placement and tells the company', function () {
 
     expect(fn () => app(LeaveCompany::class)($this->intern))->toThrow(DomainRuleViolation::class);
 });
+
+it('refuses a code whose company user is disabled', function () {
+    Application::factory()->for($this->posting, 'posting')->for($this->intern, 'intern')->accepted()->create();
+    $this->company->user->update(['status' => AccountStatus::Disabled]);
+
+    expect(fn () => app(PlaceIntern::class)($this->intern, 'TECHNOVA'))->toThrow(DomainRuleViolation::class, 'No company');
+});
+
+it('refuses a second placement on a repeated submit', function () {
+    Application::factory()->for($this->posting, 'posting')->for($this->intern, 'intern')->accepted()->create();
+
+    app(PlaceIntern::class)($this->intern, 'TECHNOVA');
+    expect(fn () => app(PlaceIntern::class)($this->intern, 'TECHNOVA'))->toThrow(DomainRuleViolation::class, 'already placed');
+    expect(Placement::where('intern_id', $this->intern->id)->count())->toBe(1);
+});
+
+it('needs a new acceptance to rejoin a company after leaving or being removed', function (string $how) {
+    Application::factory()->for($this->posting, 'posting')->for($this->intern, 'intern')->accepted()->create(['decided_at' => now()->subDays(10)]);
+    $placement = Placement::factory()->for($this->intern, 'intern')->for($this->company)->create(['started_at' => now()->subDays(8)->toDateString()]);
+    $how === 'leave' ? app(LeaveCompany::class)($this->intern) : $placement->update(['ended_at' => today()]);
+
+    expect(fn () => app(PlaceIntern::class)($this->intern, 'TECHNOVA'))->toThrow(DomainRuleViolation::class, 'new acceptance');
+
+    Application::where('intern_id', $this->intern->id)->update(['decided_at' => now()->addDay()]);
+    expect(app(PlaceIntern::class)($this->intern, 'TECHNOVA')->ended_at)->toBeNull()
+        ->and(Placement::where('intern_id', $this->intern->id)->count())->toBe(2);
+})->with(['leave', 'removed']);

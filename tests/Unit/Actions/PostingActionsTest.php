@@ -4,6 +4,8 @@ use App\Actions\CreatePosting;
 use App\Actions\DeletePosting;
 use App\Actions\TogglePostingStatus;
 use App\Actions\UpdatePosting;
+use App\Enums\AccountStatus;
+use App\Enums\ApprovalStatus;
 use App\Enums\PostingStatus;
 use App\Exceptions\DomainRuleViolation;
 use App\Models\Application;
@@ -58,4 +60,14 @@ it('deletes a posting without applications but refuses one that has any', functi
 
     expect(fn () => app(DeletePosting::class)($used))->toThrow(DomainRuleViolation::class);
     expect(InternshipPosting::whereKey($used->id)->exists())->toBeTrue();
+});
+
+it('does not accept applications for postings of rejected or disabled companies', function () {
+    $rejected = InternshipPosting::factory()->for(Company::factory()->registered()->create(['approval_status' => ApprovalStatus::Rejected]))->create();
+    $disabled = InternshipPosting::factory()->for(Company::factory()->registered()->create())->create();
+    $disabled->company->user->update(['status' => AccountStatus::Disabled]);
+    $ok = InternshipPosting::factory()->for(Company::factory()->registered()->create())->create();
+
+    expect(InternshipPosting::accepting()->pluck('id')->all())->toBe([$ok->id])
+        ->and($rejected->fresh()->isAcceptingApplications())->toBeFalse()->and($disabled->fresh()->isAcceptingApplications())->toBeFalse();
 });

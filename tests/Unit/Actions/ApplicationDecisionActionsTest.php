@@ -5,6 +5,7 @@ use App\Actions\ScheduleInterview;
 use App\Enums\ApplicationStatus;
 use App\Exceptions\DomainRuleViolation;
 use App\Models\Application;
+use App\Models\Placement;
 use App\Notifications\ApplicationDecided;
 use App\Notifications\InterviewScheduled;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,4 +52,16 @@ it('accepts or declines an open application exactly once and notifies the intern
     expect($other->refresh()->status)->toBe(ApplicationStatus::Declined)->and($other->decline_reason)->toBe('Position filled');
 
     expect(fn () => app(DecideApplication::class)(Application::factory()->create(), ApplicationStatus::Pending))->toThrow(InvalidArgumentException::class);
+});
+
+it('refuses to accept an intern who is already placed, but still declines', function () {
+    Notification::fake();
+    $application = Application::factory()->forInterview()->create();
+    Placement::factory()->for($application->intern, 'intern')->create();
+
+    expect(fn () => app(DecideApplication::class)($application, ApplicationStatus::Accepted))->toThrow(DomainRuleViolation::class, 'already placed');
+    expect($application->refresh()->status)->toBe(ApplicationStatus::ForInterview);
+
+    app(DecideApplication::class)($application, ApplicationStatus::Declined, 'Placed elsewhere.');
+    expect($application->refresh()->status)->toBe(ApplicationStatus::Declined);
 });

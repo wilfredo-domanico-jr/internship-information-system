@@ -1,5 +1,8 @@
 <?php
 
+use App\Actions\ApplyToPosting;
+use App\Enums\AccountStatus;
+use App\Enums\ApprovalStatus;
 use App\Models\Application;
 use App\Models\Company;
 use App\Models\InternshipPosting;
@@ -63,4 +66,17 @@ it('validates the files and explains why an intern cannot apply', function () {
         'endorsement' => UploadedFile::fake()->create('e.pdf', 10, 'application/pdf'),
     ])->assertRedirect(route('intern.postings.show', $this->posting))->assertSessionHas('error');
     expect(Application::count())->toBe(0);
+});
+
+it('hides postings of rejected or disabled companies', function () {
+    $rejected = InternshipPosting::factory()->for(Company::factory()->registered()->create(['approval_status' => ApprovalStatus::Rejected]))->create(['title' => 'Rejected Co Intern']);
+    $disabledCompany = Company::factory()->registered()->create();
+    $disabledCompany->user->update(['status' => AccountStatus::Disabled]);
+    $disabled = InternshipPosting::factory()->for($disabledCompany)->create(['title' => 'Disabled Co Intern']);
+
+    $this->actingAs($this->intern)->get(route('intern.postings.index'))->assertOk()->assertSee('Web Dev Intern')->assertDontSee('Rejected Co Intern')->assertDontSee('Disabled Co Intern');
+    $this->actingAs($this->intern)->get(route('intern.postings.show', $rejected))->assertForbidden();
+    $this->actingAs($this->intern)->get(route('intern.postings.show', $disabled))->assertForbidden();
+    expect(ApplyToPosting::blocker($this->intern, $rejected))->toContain('closed')
+        ->and(ApplyToPosting::blocker($this->intern, $disabled))->toContain('closed');
 });
