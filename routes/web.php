@@ -124,6 +124,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::put('postings/{posting}', [Company\PostingController::class, 'update'])->name('postings.update');
         Route::post('postings/{posting}/toggle', [Company\PostingController::class, 'toggle'])->name('postings.toggle');
         Route::delete('postings/{posting}', [Company\PostingController::class, 'destroy'])->name('postings.destroy');
+        Route::get('postings/{posting}/applicants', Company\ApplicantController::class)->name('postings.applicants');
+        Route::get('applications/{application}', [Company\ApplicationController::class, 'show'])->name('applications.show');
     });
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
