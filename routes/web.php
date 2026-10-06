@@ -89,6 +89,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('dashboard', Adviser\DashboardController::class)->name('dashboard');
         Route::get('classes', [Adviser\ClassSectionController::class, 'index'])->name('classes.index');
         Route::get('classes/create', [Adviser\ClassSectionController::class, 'create'])->name('classes.create');
+        Route::post('classes/join', [Adviser\ClassSectionController::class, 'join'])->name('classes.join');
+        Route::post('classes/{classSection}/leave', [Adviser\ClassSectionController::class, 'leave'])->name('classes.leave');
         Route::post('classes', [Adviser\ClassSectionController::class, 'store'])->name('classes.store');
         Route::get('classes/{classSection}/edit', [Adviser\ClassSectionController::class, 'edit'])->name('classes.edit');
         Route::put('classes/{classSection}', [Adviser\ClassSectionController::class, 'update'])->name('classes.update');

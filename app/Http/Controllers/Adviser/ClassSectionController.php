@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Adviser;
 
+use App\Actions\ClaimClass;
 use App\Actions\CreateClassSection;
+use App\Actions\LeaveClass;
 use App\Actions\UpdateClassSection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Adviser\ClassSectionRequest;
+use App\Http\Requests\Classroom\JoinClassRequest;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassSection;
 use Illuminate\Http\RedirectResponse;
@@ -55,5 +58,21 @@ class ClassSectionController extends Controller
         $update($classSection, $request->validated());
 
         return redirect()->route('adviser.classes.index')->with('success', "{$classSection->display_name} was updated.");
+    }
+
+    public function join(JoinClassRequest $request, ClaimClass $claim): RedirectResponse
+    {
+        $section = $claim($request->validated('join_code'), $request->user());
+
+        return redirect()->route('adviser.classes.index')->with('success', "You are now the adviser of {$section->display_name}.");
+    }
+
+    public function leave(ClassSection $classSection, Request $request, LeaveClass $leave): RedirectResponse
+    {
+        Gate::authorize('manage', $classSection);
+
+        $leave($classSection, $request->user());
+
+        return redirect()->route('adviser.classes.index')->with('success', "You left {$classSection->display_name}. Another adviser can claim it with its join code.");
     }
 }
