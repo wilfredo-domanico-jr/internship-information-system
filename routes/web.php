@@ -140,6 +140,8 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('dtrs', [Company\DtrController::class, 'index'])->name('dtrs.index');
         Route::post('dtrs/{dtr}/approve', [Company\DtrController::class, 'approve'])->name('dtrs.approve');
         Route::post('dtrs/{dtr}/disapprove', [Company\DtrController::class, 'disapprove'])->name('dtrs.disapprove');
+        Route::get('certificates', [Company\CertificateController::class, 'index'])->name('certificates.index');
+        Route::post('placements/{placement}/certificates', [Company\CertificateController::class, 'store'])->name('certificates.store');
     });
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
@@ -157,6 +159,7 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('dtrs', [Intern\DtrController::class, 'index'])->name('dtrs.index');
         Route::post('dtrs', [Intern\DtrController::class, 'store'])->name('dtrs.store');
         Route::delete('dtrs/{dtr}', [Intern\DtrController::class, 'destroy'])->name('dtrs.destroy');
+        Route::get('certificates', Intern\CertificateController::class)->name('certificates.index');
         Route::get('applications', [Intern\ApplicationController::class, 'index'])->name('applications.index');
         Route::post('applications/{application}/cancel', [Intern\ApplicationController::class, 'cancel'])->name('applications.cancel');
         Route::get('class', [Intern\ClassController::class, 'show'])->name('class.show');
