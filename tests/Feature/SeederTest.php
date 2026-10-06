@@ -1,12 +1,17 @@
 <?php
 
 use App\Models\AnnouncementComment;
+use App\Models\Application;
+use App\Models\Certificate;
 use App\Models\ClassResource;
 use App\Models\ClassSection;
 use App\Models\ClassSubmission;
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\DocumentRequest;
+use App\Models\Dtr;
 use App\Models\InternshipPosting;
+use App\Models\Interview;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,7 +40,17 @@ it('seeds a coherent demo dataset', function () {
         ->and(ClassSubmission::count())->toBe(3)
         ->and(ClassSubmission::where('is_late', true)->count())->toBe(1)
         ->and(ClassResource::count())->toBe(1)
-        ->and(AnnouncementComment::count())->toBe(1);
+        ->and(AnnouncementComment::count())->toBe(1)
+        ->and(Application::count())->toBe(2)
+        ->and(Interview::count())->toBe(1)
+        ->and(DocumentRequest::count())->toBe(1)
+        ->and(Certificate::count())->toBe(1);
+
+    foreach (Dtr::all() as $dtr) {
+        Storage::disk('local')->assertExists($dtr->file_path);
+    }
+    Storage::disk('local')->assertExists(Certificate::firstOrFail()->file_path);
+    Storage::disk('local')->assertExists(Application::firstOrFail()->resume_path);
 
     $paths = ClassSubmission::pluck('file_path')->merge(ClassResource::pluck('file_path'));
     expect($paths)->toHaveCount(4)->and($paths->unique())->toHaveCount(4);

@@ -5,14 +5,18 @@ namespace Database\Seeders;
 use App\Enums\ApprovalStatus;
 use App\Models\Announcement;
 use App\Models\AnnouncementComment;
+use App\Models\Application;
+use App\Models\Certificate;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassFolder;
 use App\Models\ClassResource;
 use App\Models\ClassSection;
 use App\Models\ClassSubmission;
 use App\Models\Company;
+use App\Models\DocumentRequest;
 use App\Models\Dtr;
 use App\Models\InternshipPosting;
+use App\Models\Interview;
 use App\Models\Placement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -84,9 +88,10 @@ class DemoSeeder extends Seeder
                 'period_from' => now()->subWeeks($weeksAgo)->startOfWeek()->toDateString(),
                 'period_to' => now()->subWeeks($weeksAgo - 1)->endOfWeek()->toDateString(),
                 'reviewer_id' => $companyUser->id,
+                'file_path' => $this->demoPdf('dtrs/demo'),
             ]);
         }
-        Dtr::factory()->for($placement)->create(['hours' => 40]);
+        Dtr::factory()->for($placement)->create(['hours' => 40, 'file_path' => $this->demoPdf('dtrs/demo')]);
 
         $intern2 = User::factory()->intern()->create([
             'first_name' => 'Maria', 'last_name' => 'Santos', 'email' => 'intern2@wiis.test',
@@ -98,8 +103,8 @@ class DemoSeeder extends Seeder
             fn (User $user) => $user->internProfile()->update(['class_section_id' => $section->id])
         );
 
-        InternshipPosting::factory()->for($company)->create(['title' => 'Junior Web Developer Intern']);
-        InternshipPosting::factory()->for($company)->create(['title' => 'IT Support Intern']);
+        $webDev = InternshipPosting::factory()->for($company)->create(['title' => 'Junior Web Developer Intern']);
+        $support = InternshipPosting::factory()->for($company)->create(['title' => 'IT Support Intern']);
 
         $endorsement = ClassFolder::factory()->for($section)->create(['name' => 'Endorsement Letter']);
         $weekly = ClassFolder::factory()->for($section)->create(['name' => 'Weekly Report 1', 'is_locked' => true]);
@@ -122,12 +127,30 @@ class DemoSeeder extends Seeder
         ClassResource::factory()->for($section)->for($adviser, 'uploader')->create([
             'title' => 'OJT Guidelines and Templates', 'file_path' => $this->demoPdf(),
         ]);
+
+        $forInterview = Application::factory()->for($webDev, 'posting')->for($intern2, 'intern')->forInterview()->create([
+            'resume_path' => $this->demoPdf('applications/demo'), 'endorsement_path' => $this->demoPdf('applications/demo'),
+        ]);
+        Interview::factory()->for($forInterview)->create([
+            'title' => 'Initial interview', 'venue' => 'Google Meet', 'link' => 'https://meet.google.com/wiis-demo',
+            'scheduled_on' => now()->addDays(3)->toDateString(), 'starts_at' => '10:00:00', 'ends_at' => '10:30:00',
+        ]);
+        Application::factory()->for($support, 'posting')->for($intern2, 'intern')->create([
+            'resume_path' => $this->demoPdf('applications/demo'), 'endorsement_path' => $this->demoPdf('applications/demo'),
+        ]);
+
+        DocumentRequest::factory()->for($placement)->create([
+            'control_no' => 'DR-'.now()->year.'-00001', 'document_name' => 'Certificate of Completion', 'message' => 'For my OJT portfolio.',
+        ]);
+        Certificate::factory()->for($placement)->create([
+            'hours_at_issue' => 300, 'issued_at' => now()->subWeek(), 'file_path' => $this->demoPdf('certificates/demo'),
+        ]);
     }
 
     /** Stores a fresh private copy of the placeholder PDF (one per record, so deleting one never breaks another). */
-    private function demoPdf(): string
+    private function demoPdf(string $dir = 'classroom/demo'): string
     {
-        $path = 'classroom/demo/'.Str::uuid().'.pdf';
+        $path = "{$dir}/".Str::uuid().'.pdf';
         Storage::disk('local')->put($path, $this->placeholderPdf());
 
         return $path;

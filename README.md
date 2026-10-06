@@ -45,6 +45,15 @@ Admin → Imports bulk-creates interns, advisers and classes from Excel.
 - Shared resources are PDFs the adviser makes available to the whole class.
 - The People tab shows every intern's hours and prints as a class list.
 
+### Internship flow
+
+- Companies post internships; interns apply with a resume and an endorsement letter.
+- The company schedules an interview, then accepts or declines. An accepted intern joins by entering the company code, which creates the placement.
+- Interns submit DTRs that the company approves (hours are credited exactly once) or disapproves with a note.
+- Interns request documents that the company fulfils or declines.
+- Once an intern reaches 250 hours at a company, that company can issue a certificate.
+- The company dashboard charts interns by hour bucket, and history keeps past placements.
+
 ## Tech stack
 
 Laravel 12 · PHP 8.2 · Blade + Tailwind CSS 4 + Alpine.js (Vite) · Pest 3 · SQLite (dev/test) or MySQL · Laravel Pint · GitHub Actions
@@ -90,11 +99,12 @@ The demo seeder is for local development and demos only; never run it against a 
   `companies.user_id` is nullable: partner (COS) companies exist without a login.
 - **Layers** — thin controllers per portal (`App\Http\Controllers\{Admin,Adviser,Company,Intern}`) →
   Form Requests → single-purpose `App\Actions` → Eloquent. Statuses are PHP backed enums; authorization is Policies.
-- **Hours ledger** — only the `ApproveDtr` action (planned for Phase 4) will add hours, inside a transaction, on the pending→approved transition.
+- **Hours ledger** — the one writer is `App\Actions\ApproveDtr`, transactional and idempotent: hours are added only on the pending→approved transition.
 - **Private files** — uploads live on the private disk and are streamed by `FileController` after a policy check.
 - **Business-rule refusals** — actions throw `DomainRuleViolation`, which renders as a flash error.
 - **Rich text** — cleaned by `App\Services\HtmlSanitizer` (HTML Purifier) on save and again on render.
 - **Classroom access** — decided by Policies built on `ClassSection::isAdvisedBy/enrolls/hasMember`.
+- **Internship access** — internship records are authorized by Policies built on `Company::isManagedBy` and `Placement::isInternOf`.
 - **Notifications** — Laravel database notifications surface in the topbar bell.
 - **UI** — a small Blade component library (`resources/views/components`) on Tailwind 4 tokens, with dark mode.
 
@@ -110,7 +120,7 @@ vendor/bin/pint --test    # code style
 - [x] Phase 1 — Foundation: schema, auth, design system, dashboards, notifications, files, profiles, CI
 - [x] Phase 2 — Admin portal: user management, company approvals, partner companies, classes, departments, Excel imports, charts
 - [x] Phase 3 — Classroom: classes, stream, folders, submissions
-- [ ] Phase 4 — Internship core: postings, applications, interviews, placements, DTRs, certificates
+- [x] Phase 4 — Internship core: postings, applications, interviews, placements, DTRs, certificates
 - [ ] Phase 5 — COS partner-company track
 - [ ] Phase 6 — Public site, demo mode, polish
 

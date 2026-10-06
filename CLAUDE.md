@@ -45,6 +45,11 @@ Read it before starting any feature work; decisions recorded there are settled.
   access is decided by Policies on each classroom model, all built on `ClassSection::isAdvisedBy|enrolls|hasMember`.
   Rich text goes through `App\Services\HtmlSanitizer` on save and is rendered only via `<x-rich-text>`. Private PDFs are
   served through `files.show` kinds `class-submission` and `class-resource`.
+- **Internship core**: company/intern controllers under their portals; policies on InternshipPosting, Application,
+  Placement, Dtr, DocumentRequest and Certificate built on `Company::isManagedBy` and `Placement::isInternOf`.
+  Acceptance never places an intern — `PlaceIntern` (company code + accepted application) creates the placement.
+  Private PDFs are served through `files.show` kinds `application-resume`, `application-endorsement`, `dtr`,
+  `document-request` and `certificate`.
 - **Search**: search inputs go through `App\Support\Search::any|like` (escaped LIKE).
 - **Blade attributes**: dynamic text inside Blade component-tag attributes must be a bound expression
   (`:title="..."`), never `{{ }}` inside the attribute string.
