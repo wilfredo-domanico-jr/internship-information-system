@@ -130,6 +130,10 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::get('interviews', Company\InterviewController::class)->name('interviews.index');
         Route::post('applications/{application}/accept', [Company\ApplicationController::class, 'accept'])->name('applications.accept');
         Route::post('applications/{application}/decline', [Company\ApplicationController::class, 'decline'])->name('applications.decline');
+        Route::get('interns', [Company\InternController::class, 'index'])->name('interns.index');
+        Route::put('placements/{placement}/department', [Company\PlacementController::class, 'department'])->name('placements.department');
+        Route::post('placements/{placement}/remove', [Company\PlacementController::class, 'remove'])->name('placements.remove');
+        Route::get('history', Company\HistoryController::class)->name('history.index');
     });
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {
