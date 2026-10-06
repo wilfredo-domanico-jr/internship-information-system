@@ -9,10 +9,15 @@ use App\Actions\UpdateClassSection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Adviser\ClassSectionRequest;
 use App\Http\Requests\Classroom\JoinClassRequest;
+use App\Models\Announcement;
+use App\Models\AnnouncementComment;
 use App\Models\ClassAdviserLog;
 use App\Models\ClassSection;
+use App\Models\InternProfile;
+use App\Services\OjtHoursService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -74,5 +79,51 @@ class ClassSectionController extends Controller
         $leave($classSection, $request->user());
 
         return redirect()->route('adviser.classes.index')->with('success', "You left {$classSection->display_name}. Another adviser can claim it with its join code.");
+    }
+
+    public function show(ClassSection $classSection): View
+    {
+        Gate::authorize('view', $classSection);
+
+        return view('adviser.classes.show', [
+            'class' => $classSection->loadCount('internProfiles'),
+            'announcements' => $classSection->announcements()->with(['author', 'comments.author'])->paginate(10)
+                ->through(function (Announcement $announcement) use ($classSection) {
+                    $announcement->setRelation('classSection', $classSection);
+                    $announcement->comments->each(fn (AnnouncementComment $comment) => $comment->setRelation('announcement', $announcement));
+
+                    return $announcement;
+                }),
+        ]);
+    }
+
+    public function people(ClassSection $classSection, OjtHoursService $hours): View
+    {
+        Gate::authorize('view', $classSection);
+
+        return view('adviser.classes.people', [
+            'class' => $classSection->loadCount('internProfiles'),
+            'profiles' => $this->roster($classSection),
+            'hours' => $hours,
+        ]);
+    }
+
+    public function print(ClassSection $classSection, OjtHoursService $hours): View
+    {
+        Gate::authorize('view', $classSection);
+
+        return view('adviser.classes.print', [
+            'class' => $classSection,
+            'profiles' => $this->roster($classSection),
+            'hours' => $hours,
+        ]);
+    }
+
+    /** @return Collection<int, InternProfile> sorted by surname, with user, active placement and company loaded */
+    private function roster(ClassSection $section): Collection
+    {
+        return $section->internProfiles()->with(['user.activePlacement.company'])->get()
+            ->sortBy(fn (InternProfile $profile) => mb_strtolower($profile->user->last_name.' '.$profile->user->first_name))
+            ->values();
     }
 }

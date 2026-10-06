@@ -94,6 +94,9 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
         Route::post('classes', [Adviser\ClassSectionController::class, 'store'])->name('classes.store');
         Route::get('classes/{classSection}/edit', [Adviser\ClassSectionController::class, 'edit'])->name('classes.edit');
         Route::put('classes/{classSection}', [Adviser\ClassSectionController::class, 'update'])->name('classes.update');
+        Route::get('classes/{classSection}', [Adviser\ClassSectionController::class, 'show'])->name('classes.show');
+        Route::get('classes/{classSection}/people', [Adviser\ClassSectionController::class, 'people'])->name('classes.people');
+        Route::get('classes/{classSection}/print', [Adviser\ClassSectionController::class, 'print'])->name('classes.print');
     });
 
     Route::prefix('company')->name('company.')->middleware('role:company')->group(function () {

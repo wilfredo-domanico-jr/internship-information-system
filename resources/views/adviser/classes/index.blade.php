@@ -20,7 +20,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <p class="font-display text-lg font-semibold">
-                                        @if (Route::has('adviser.classes.show'))<a href="{{ route('adviser.classes.show', $class) }}" class="hover:underline">{{ $class->display_name }}</a>@else{{ $class->display_name }}@endif
+                                        <a href="{{ route('adviser.classes.show', $class) }}" class="hover:underline">{{ $class->display_name }}</a>
                                     </p>
                                     <p class="text-sm text-stone-500">{{ $class->subject }} · {{ $class->school_year }}</p>
                                     <p class="mt-1 text-sm text-stone-500">{{ $class->schedule_label }}</p>
