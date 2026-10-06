@@ -117,6 +117,13 @@ Route::middleware(['auth', 'auth.session', 'account.usable'])->group(function ()
 
     Route::prefix('company')->name('company.')->middleware('role:company')->group(function () {
         Route::get('dashboard', Company\DashboardController::class)->name('dashboard');
+        Route::get('postings', [Company\PostingController::class, 'index'])->name('postings.index');
+        Route::get('postings/create', [Company\PostingController::class, 'create'])->name('postings.create');
+        Route::post('postings', [Company\PostingController::class, 'store'])->name('postings.store');
+        Route::get('postings/{posting}/edit', [Company\PostingController::class, 'edit'])->name('postings.edit');
+        Route::put('postings/{posting}', [Company\PostingController::class, 'update'])->name('postings.update');
+        Route::post('postings/{posting}/toggle', [Company\PostingController::class, 'toggle'])->name('postings.toggle');
+        Route::delete('postings/{posting}', [Company\PostingController::class, 'destroy'])->name('postings.destroy');
     });
 
     Route::prefix('intern')->name('intern.')->middleware('role:intern')->group(function () {

@@ -47,5 +47,5 @@ it('lists the company sections once their routes exist', function () {
 it('does not show portal sections to roles that have none', function () {
     $company = User::factory()->company()->create();
 
-    expect(collect(Navigation::for($company))->pluck('label')->all())->toBe(['Dashboard', 'Notifications']);
+    expect(collect(Navigation::for($company))->pluck('label')->all())->toBe(['Dashboard', 'Postings', 'Notifications']);
 });

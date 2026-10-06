@@ -30,6 +30,18 @@ class InternshipPosting extends Model
         return $query->where('status', PostingStatus::Open);
     }
 
+    /** Open and either without a closing date or closing today or later. */
+    public function isAcceptingApplications(): bool
+    {
+        return $this->status === PostingStatus::Open
+            && ($this->closing_date === null || $this->closing_date->greaterThanOrEqualTo(today()));
+    }
+
+    public function scopeAccepting(Builder $query): Builder
+    {
+        return $query->open()->where(fn (Builder $q) => $q->whereNull('closing_date')->orWhereDate('closing_date', '>=', today()));
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
