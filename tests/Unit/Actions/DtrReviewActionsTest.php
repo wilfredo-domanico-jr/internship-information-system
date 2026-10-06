@@ -8,6 +8,7 @@ use App\Models\Dtr;
 use App\Models\Placement;
 use App\Models\User;
 use App\Notifications\DtrReviewed;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 
@@ -65,4 +66,22 @@ it('credits hours even after the placement ended', function () {
     app(ApproveDtr::class)($dtr, $this->reviewer);
 
     expect($this->placement->refresh()->hours_rendered)->toBe(68)->and($this->intern->internProfile->refresh()->total_hours)->toBe(108);
+});
+
+it('refuses a stale disapproval after the DTR was approved elsewhere', function () {
+    $dtr = Dtr::factory()->for($this->placement)->create(['hours' => 40]);
+    $stale = Dtr::find($dtr->id);
+
+    app(ApproveDtr::class)(Dtr::find($dtr->id), $this->reviewer);
+
+    expect(fn () => app(DisapproveDtr::class)($stale, $this->reviewer, 'too late'))->toThrow(DomainRuleViolation::class);
+    expect($dtr->refresh()->status)->toBe(DtrStatus::Approved)->and($this->placement->refresh()->hours_rendered)->toBe(100);
+});
+
+it('fails loudly and credits nothing when the intern has no profile', function () {
+    $dtr = Dtr::factory()->for($this->placement)->create(['hours' => 40]);
+    $this->intern->internProfile()->delete();
+
+    expect(fn () => app(ApproveDtr::class)($dtr, $this->reviewer))->toThrow(ModelNotFoundException::class);
+    expect($this->placement->refresh()->hours_rendered)->toBe(60)->and($dtr->refresh()->status)->toBe(DtrStatus::Pending);
 });

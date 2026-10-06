@@ -36,8 +36,9 @@ class ApproveDtr
             $placement->increment('hours_rendered', $locked->hours);
             $placement->increment('absences', $locked->absences);
 
-            InternProfile::query()->where('user_id', $placement->intern_id)->increment('total_hours', $locked->hours);
-            InternProfile::query()->where('user_id', $placement->intern_id)->increment('total_absences', $locked->absences);
+            $profile = InternProfile::query()->where('user_id', $placement->intern_id)->lockForUpdate()->firstOrFail();
+            $profile->increment('total_hours', $locked->hours);
+            $profile->increment('total_absences', $locked->absences);
         });
 
         $dtr->refresh()->placement->intern->notify(new DtrReviewed($dtr));
