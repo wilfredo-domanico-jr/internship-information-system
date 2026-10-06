@@ -1,5 +1,7 @@
 import Alpine from 'alpinejs';
 import Chart from 'chart.js/auto';
+import 'trix';
+import 'trix/dist/trix.css';
 
 window.Alpine = Alpine;
 
@@ -32,5 +34,8 @@ Alpine.data('chart', () => ({
         this.instance?.destroy();
     },
 }));
+
+// Attachments are not supported: documents go through the class folders instead.
+document.addEventListener('trix-file-accept', (event) => event.preventDefault());
 
 Alpine.start();

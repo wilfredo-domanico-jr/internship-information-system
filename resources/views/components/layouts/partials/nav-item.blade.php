@@ -1,6 +1,6 @@
 @props(['item'])
 @if (Route::has($item['route']))
-    @php $active = request()->routeIs($item['active'] ?? $item['route']); @endphp
+    @php $active = request()->routeIs(...(array) ($item['active'] ?? $item['route'])); @endphp
     <a href="{{ route($item['route']) }}"
        @class([
            'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition',

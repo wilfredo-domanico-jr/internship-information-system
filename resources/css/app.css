@@ -88,4 +88,23 @@
 
     .data-table th { @apply px-5 py-3 text-left text-xs font-medium uppercase tracking-wide text-stone-500; }
     .data-table td { @apply px-5 py-3.5 align-middle; }
+
+    /* Trix editor: match the input styling and hide the attachment tools. */
+    trix-toolbar { @apply mb-2; }
+    trix-toolbar .trix-button-group { @apply overflow-hidden rounded-xl border-stone-300 dark:border-stone-700; }
+    trix-toolbar .trix-button { @apply border-stone-300 dark:border-stone-700 dark:bg-stone-800; }
+    trix-toolbar .trix-button-group--file-tools { display: none; }
+    .dark trix-toolbar .trix-button--icon::before { filter: invert(1); }
+    trix-editor:empty:not(:focus)::before { @apply text-stone-400; }
+
+    /* Rendered rich text (announcements). */
+    .rich-text { @apply text-sm leading-6 text-stone-700 dark:text-stone-200; }
+    .rich-text p, .rich-text div { @apply mb-2 last:mb-0; }
+    .rich-text a { @apply font-medium text-brand-700 underline dark:text-brand-300; }
+    .rich-text ul { @apply mb-2 list-disc pl-5; }
+    .rich-text ol { @apply mb-2 list-decimal pl-5; }
+    .rich-text h1, .rich-text h2, .rich-text h3 { @apply mb-2 font-display text-base font-semibold; }
+    .rich-text blockquote { @apply mb-2 border-l-2 border-stone-300 pl-3 italic dark:border-stone-700; }
+    .rich-text pre { @apply mb-2 overflow-x-auto rounded-lg bg-stone-100 p-3 font-mono text-xs dark:bg-stone-800; }
+    .rich-text strong { @apply font-semibold; }
 }

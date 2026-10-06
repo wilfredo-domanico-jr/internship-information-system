@@ -11,7 +11,7 @@ class Navigation
     /**
      * Sidebar items for the user's portal.
      *
-     * @return array<int, array{label: string, route: string, icon: string, active: string, badge?: int|string|null}>
+     * @return array<int, array{label: string, route: string, icon: string, active: string|array<int, string>, badge?: int|string|null}>
      */
     public static function for(User $user): array
     {
@@ -27,7 +27,7 @@ class Navigation
         return array_values(array_filter($items, fn (array $item) => Route::has($item['route'])));
     }
 
-    /** @return array<int, array{label: string, route: string, icon: string, active: string, badge?: int|string|null}> */
+    /** @return array<int, array{label: string, route: string, icon: string, active: string|array<int, string>, badge?: int|string|null}> */
     private static function portalItems(User $user): array
     {
         if ($user->isAdmin()) {
@@ -41,6 +41,21 @@ class Navigation
                 ['label' => 'Departments', 'route' => 'admin.departments.index', 'icon' => 'heroicon-o-squares-2x2', 'active' => 'admin.departments.*'],
                 ['label' => 'Imports', 'route' => 'admin.imports.index', 'icon' => 'heroicon-o-arrow-up-tray', 'active' => 'admin.imports.*'],
                 ['label' => 'Archive', 'route' => 'admin.archive.index', 'icon' => 'heroicon-o-archive-box', 'active' => 'admin.archive.*'],
+            ];
+        }
+
+        if ($user->isAdviser()) {
+            return [
+                ['label' => 'My classes', 'route' => 'adviser.classes.index', 'icon' => 'heroicon-o-rectangle-group',
+                    'active' => ['adviser.classes.*', 'adviser.announcements.*', 'adviser.comments.*', 'adviser.folders.*', 'adviser.submissions.*', 'adviser.resources.*']],
+            ];
+        }
+
+        if ($user->isIntern()) {
+            return [
+                ['label' => 'My class', 'route' => 'intern.class.show', 'icon' => 'heroicon-o-rectangle-group',
+                    'active' => ['intern.class.*', 'intern.comments.*', 'intern.folders.*']],
+                ['label' => 'My submissions', 'route' => 'intern.submissions.index', 'icon' => 'heroicon-o-document-check', 'active' => 'intern.submissions.*'],
             ];
         }
 
